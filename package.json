@@ -2,16 +2,20 @@
   "name": "sustain",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ajax": "0.0.4",
+    "bootstrap": "^4.5.0",
     "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
+    "jquery": "^3.5.1",
     "path": "^0.12.7",
+    "popper.js": "^1.16.1",
     "request": "^2.88.2"
   }
 }
