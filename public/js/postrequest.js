@@ -1,12 +1,11 @@
 $( document ).ready(function() {
-  console.log('file post called');
   
     // SUBMIT FORM
       $("#customerForm").submit(function(event) {
       // Prevent the form from submitting via the browser.
       event.preventDefault();
       ajaxPost();
-      console.log('form submission');
+      console.log("form submission");
     });
       
       
@@ -18,7 +17,6 @@ $( document ).ready(function() {
           lastname :  $("#lastname").val()
         };
 
-        console.log('data ready')
         // DO POST
         $.ajax({
         type : "POST",
