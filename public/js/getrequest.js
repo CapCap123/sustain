@@ -1,7 +1,7 @@
 $( document ).ready(function() {
   
     // GET REQUEST
-    $("#allCustomers").click(function(event){
+    $("#allBusinesses").click(function(event){
       event.preventDefault();
       ajaxGet();
     });
@@ -10,12 +10,12 @@ $( document ).ready(function() {
     function ajaxGet(){
       $.ajax({
         type : "GET",
-        url : window.location + "api/customers/all",
+        url : window.location + "api/businesses/all",
         success: function(result){
           $('#getResultDiv ul').empty();
           var custList = "";
-          $.each(result, function(i, customer){
-            $('#getResultDiv .list-group').append(customer.firstname + " " + customer.lastname + "<br>")
+          $.each(result, function(i, business){
+            $('#getResultDiv .list-group').append(business.businessname + "<br>")
           });
           console.log("Success: ", result);
         },

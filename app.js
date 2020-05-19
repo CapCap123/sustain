@@ -9,7 +9,7 @@ app.use(express.static('public'));
  
 var path = __dirname + '/views/';
  
-var customers = [];
+var businesses = [];
  
 router.use(function (req,res,next) {
   console.log("/" + req.method);
@@ -22,20 +22,19 @@ app.get("/",function(req,res){
 
 });
  
-router.post("/api/customers/save", function(req,res){
-  console.log('Post a Customer: ' + JSON.stringify(req.body));
-  var customer = {};
-  customer.firstname = req.body.firstname;
-  customer.lastname = req.body.lastname;
+router.post("/api/businesses/save", function(req,res){
+  console.log('Post a Business: ' + JSON.stringify(req.body));
+  var business = {};
+  business.businessname = req.body.businessname;
   
-  customers.push(customer);
+  businesses.push(business);
   
-  return res.send(customer);
+  return res.send(business);
 });
  
-app.get("/api/customers/all", function(req,res){
-  console.log("Get All Customers");
-  return res.send(customers);
+app.get("/api/businesses/all", function(req,res){
+  console.log("Get All Businesses");
+  return res.send(businesses);
 });
  
 app.use("/",router);
@@ -47,5 +46,5 @@ app.use("*",function(req,res){
  
 //listen(8081)
 app.listen(8081, function () {
-  console.log('Example app listening on port 8081!')
+  console.log('Listening on port 8081!')
 })
