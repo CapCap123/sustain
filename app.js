@@ -33,7 +33,7 @@ router.post("/api/businesses/save", function(req,res){
 });
  
 app.get("/api/businesses/all", function(req,res){
-  console.log("Get All Businesses");
+  console.log("Get All Businesses" + JSON.stringify(businesses));
   return res.send(businesses);
 });
  
