@@ -4,6 +4,8 @@ var app = express();
 var router = express.Router();
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
+
+scraper = require('./findpage');
  
 app.use(express.static('public'));
  
@@ -21,11 +23,12 @@ app.get("/",function(req,res){
   console.log('html file sent');
 
 });
- 
+
 router.post("/api/businesses/save", function(req,res){
   console.log('Post a Business: ' + JSON.stringify(req.body));
   var business = {};
   business.businessname = req.body.businessname;
+  scraper(business.businessname,business);
   
   businesses.push(business);
   
@@ -44,7 +47,6 @@ app.use("*",function(req,res){
   res.sendFile(path + "404.html");
 });
  
-//listen(8081)
 app.listen(8081, function () {
   console.log('Listening on port 8081!')
 })

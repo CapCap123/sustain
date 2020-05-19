@@ -1,5 +1,4 @@
 $( document ).ready(function() {
-  
     // SUBMIT FORM
       $("#businessForm").submit(function(event) {
       // Prevent the form from submitting via the browser.
@@ -22,6 +21,7 @@ $( document ).ready(function() {
         url : "api/businesses/save",
         data : JSON.stringify(formData),
         dataType : 'json',
+
         success : function(business) {
           $("#postResultDiv").html("<p>" + 
             "Post Successfully! <br>" +
