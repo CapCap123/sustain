@@ -1,11 +1,12 @@
 
 <html lang="en">
     <head>
-      <title>Spring Boot - AJAX POST GET Example</title>
+      <title>Sustain</title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
       <script src="/js/getrequest.js"></script>
       <script src="/js/postrequest.js"></script>
@@ -19,7 +20,7 @@
         <form id="businessForm">
           <div class="form-group">
           <label for="businessname">Business name:</label>
-          <input type="text" class="form-control" id="businessname" placeholder="Enter a business"/>
+          <input type="text" class="form-control" id="businessname" required=true placeholder="Enter a business"/>
           </div>
           <button type="submit" class="btn btn-default">Submit</button>
         </form>
@@ -42,6 +43,8 @@
 <!-- TODO: Add SDKs for Firebase products that you want to use
      https://firebase.google.com/docs/web/setup#available-libraries -->
 <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-database.js"></script>
+
 
 <script>
   // Your web app's Firebase configuration
@@ -56,8 +59,8 @@
     measurementId: "G-0NH1RKVV78"
   };
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
   firebase.analytics();
+  //const rootref = firebase.database().ref();
 </script>
     </body>
     </html>

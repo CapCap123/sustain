@@ -15,7 +15,8 @@ $( document ).ready(function() {
           $('#getResultDiv ul').empty();
           var custList = "";
           $.each(result, function(i, business){
-            $('#getResultDiv .list-group').append(business.businessname + "<br>")
+            $('#getResultDiv .list-group').append(JSON.stringify(business) + "<br>")
+            //append(businesses.business + "<br>")
           });
           console.log("Success: ", result);
         },
