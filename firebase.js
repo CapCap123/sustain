@@ -10,20 +10,35 @@ admin.initializeApp({
 });
 
 var db = admin.database();
-
 var ref = db.ref("restricted_access/secret_document");
+
+var businesssRef = ref.child("business");
+var brandRef = ref.child("brands");
+
 ref.once("value", function(snapshot) {
   console.log(snapshot.val());
 });
 
-var usersRef = ref.child("users");
-usersRef.set({
-  alanisawesome: {
-    date_of_birth: "June 23, 1912",
-    full_name: "Alan Turing"
-  },
-  gracehop: {
-    date_of_birth: "December 9, 1906",
-    full_name: "Grace Hopper"
+/*
+function recordBrand (brand) {
+  brandRef.set({
+    Google_brand: {
+      brand_data: brand,
+    },
+  });
+  return(brand);
   }
+*/
+
+function recordBusiness (business) {
+  console.log('recordBusiness function started');
+  businesssRef.set({
+    Google_business: {
+      Yahoo_data: business.yahooData,
+    },
 });
+return (business);
+}
+
+module.exports = recordBusiness;
+//module.exports = recordBrand;

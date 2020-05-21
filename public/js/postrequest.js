@@ -10,7 +10,7 @@ $( document ).ready(function() {
         
         // PREPARE FORM DATA
         var formData = {
-          businessname : $("#businessname").val(),
+          brandname : $("#brandname").val(),
         };
 
         // DO POST
@@ -21,9 +21,9 @@ $( document ).ready(function() {
         data : JSON.stringify(formData),
         dataType : 'json',
         
-        success : function(business) {
+        success : function(brand) {
             $("#postResultDiv").html("<p>" + 
-            "Scraping information for "+ business.brandname); 
+            "Scraping information for "+ JSON.stringify($("#brandname").val())); 
         },
 
         error : function(e) {
@@ -35,43 +35,6 @@ $( document ).ready(function() {
         // Reset FormData after Posting
         resetData();
       };
-
-      /*
-      $("data ready") {
-        // Prevent the form from submitting via the browser.
-        event.preventDefault();
-        ajaxData();
-      };
-
-      function ajaxData() {
-        
-        // PREPARE FORM DATA
-        var formData = {
-          businessname : $("#businessname").val(),
-        };
-
-        // DO POST
-        $.ajaxData({
-        type : "POST",
-        contentType : "application/json",
-        url : "./app.js",
-        data : JSON.stringify(formData),
-        dataType : 'json',
-        
-        success : function(business) {
-            $("#postResultDiv").html("<p>" + 
-            "Scraping information for "+ JSON.stringify(business)); 
-        },
-
-        error : function(e) {
-          alert("Error!")
-          console.log("ERROR: ", e);
-        }
-      })
-      */
-        
-        // Reset FormData after Posting
-        resetData();
       
       function resetData(){
         $("#businessname").val("");
