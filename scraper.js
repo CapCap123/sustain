@@ -1,10 +1,10 @@
 const request = require('request');
 const cheerio = require('cheerio');
 
-function scraper(brand, business) {
+function scraper(brandname, business) {
 
     const url = "https://finance.yahoo.com/lookup?s=";
-    var fullurl = url + brand.brandname;
+    var fullurl = url + brandname;
     console.log(fullurl);
 
     request(fullurl,(err,res,html)=> {
@@ -21,7 +21,7 @@ function scraper(brand, business) {
             var yahooName = $("td[data-reactid='58']").text().toString();
 
             console.log(JSON.stringify(
-                brand.brandname + 
+                brandname + 
                 ' has been identified as '+ 
                 yahooName + 
                 ' on Yahoo, code: ' + 
@@ -47,12 +47,15 @@ function scraper(brand, business) {
                 var controverse = $("div[data-reactid='79']").text().toString();
 
                 //store data
-                const esgData = {'uid': yahooCode,'Business name': yahooName, 'ESG risk score': esg, 'ESG percentile': percentile, 'Controversy level': controverse, 'Environmental risk': envrisk, 'Sustain data url': urlEsg};
+                var brands = [];
+                brands.push(brandname); 
+
+                esgData = {'uid': yahooCode,'Business name': yahooName, 'ESG risk score': esg, 'ESG percentile': percentile, 'Controversy level': controverse, 'Environmental risk': envrisk, 'Sustain data url': urlEsg};
                 business.yahooData = esgData;
-                brand.yahooCode = yahooCode;
+                business.brands = brands;
                 
-                console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brand));   
-                return(brand, business);         
+                console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brandname));   
+                return(business);       
                 }    
             })
         } 

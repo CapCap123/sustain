@@ -27,21 +27,16 @@ recordBusiness = require ('./firebase');
 //recordBrand = require ('./firebase');
 
 router.post("/api/businesses/save", function(req,res){
-  var brand = {};
   var business = {};
 
-  brand.brandname = req.body.brandname;
-  //brand.brandname = reqname;
-  console.log('test brandname ' + brand.brandname);
+  brandname = req.body.brandname;
+  console.log('test brandname ' + brandname);
 
-  console.log('data in js before scraping '+JSON.stringify(brand)); //data ready {"brandname":"google"}
-
-  scraper(brand,business)
-
+  scraper(brandname,business)
   businesses.push(business); 
 
   if(!business.yahooData) {
-    setTimeout(displayData, 7000)
+    setTimeout(displayData, 8000)
     console.log('timer started')
     } else {
     displayData();
@@ -49,12 +44,12 @@ router.post("/api/businesses/save", function(req,res){
     }
 
     function displayData()  {
-    //recordBrand(brand);
-    recordBusiness(business);
-    console.log('data recorded')
-    console.log(JSON.stringify(business) + JSON.stringify(brand));
-    return(business);
-    }
+      console.log(JSON.stringify(business));
+      recordBusiness(business);
+      //recordBrand(brand);
+      console.log('data recorded')
+      return(business);
+      }
     
     res.json(business);
 });

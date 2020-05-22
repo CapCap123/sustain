@@ -1,4 +1,5 @@
 $( document ).ready(function() {
+
     // SUBMIT FORM
       $("#businessForm").submit(function(event) {
       // Prevent the form from submitting via the browser.
