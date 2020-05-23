@@ -13,8 +13,6 @@ router.use(function (req,res,next) {
 app.use(express.static('public'));
 var path = __dirname + '/views/';
 
-var businesses = [];
-
 app.get("/",function(req,res){
   res.sendFile(path + "index.html");
   console.log('html file sent');
@@ -22,9 +20,12 @@ app.get("/",function(req,res){
 });
 
 scraper = require('./scraper.js');
-
 recordBusiness = require ('./firebase');
-//recordBrand = require ('./firebase');
+
+const admin = require('firebase-admin');
+var firestore = admin.firestore()
+
+var businesses = [];
 
 router.post("/api/businesses/save", function(req,res){
   var business = {};
@@ -32,18 +33,58 @@ router.post("/api/businesses/save", function(req,res){
   brandname = req.body.brandname;
   console.log('test brandname ' + brandname);
 
-  scraper(brandname,business)
-  businesses.push(business); 
+// look if we know the brand
+  checkBrand(brandname);
 
-  if(!business.yahooData) {
-    setTimeout(displayData, 8000)
-    console.log('timer started')
-    } else {
-    displayData();
-    console.log('timer not started')
-    }
+  function checkBrand (brandname) {
+    quickstartQuery(firestore);
+    return(brandname)
+  }
+  
+  function quickstartQuery(firestore) {
+    let brandQuery = firestore.collection('brands').where('Brands', 'array-contains',  brandname);
+    brandQuery.get().then(function(querySnapshot) {
+    if (querySnapshot.empty) {
+      console.log('empty query');
+      getData(brandname,business);    
 
+    } else { querySnapshot.forEach(doc => {
+          console.log(doc.id, '=>', doc.data());
+          let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  doc.id)
+
+          businessQuery.get().then(function(querySnapshot) {
+          if (querySnapshot.empty) {
+            console.log('business data empty');
+            getData(brandname,business);
+          } else { querySnapshot.forEach(doc => {
+                console.log(doc.id, '=>', doc.data());
+                business = doc.data(doc.id);
+                console.log('retrieved data: ' + JSON.stringify(business));
+                getData(brandname,business);
+                });
+              }
+          });
+
+        })
+      }
+    })
+  }
+
+  function getData(brandname,business) {
+  if(!business.yahoo_uid) {
+      scraper(brandname,business)
+      setTimeout(displayData, 10000)
+      console.log('timer started to record data after scraping')
+      } else {
+      console.log('business already exists')
+      businesses.push(business); 
+      }
+    return(business)
+  }
+
+  // register data in firestore once scrapped
     function displayData()  {
+      businesses.push(business); 
       console.log(JSON.stringify(business));
       recordBusiness(business);
       //recordBrand(brand);

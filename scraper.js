@@ -50,9 +50,15 @@ function scraper(brandname, business) {
                 var brands = [];
                 brands.push(brandname); 
 
-                esgData = {'uid': yahooCode,'Business name': yahooName, 'ESG risk score': esg, 'ESG percentile': percentile, 'Controversy level': controverse, 'Environmental risk': envrisk, 'Sustain data url': urlEsg};
-                business.yahooData = esgData;
-                business.brands = brands;
+                business.yahoo_uid = yahooCode;
+                business.yahoo_name = yahooName;
+                business.yahoo_esg = esg;
+                business.yahoo_percentile = percentile;
+                business.yahoo_controverse = controverse;
+                business.yahoo_envrisk = envrisk;
+                //esgData = {'Business name': yahooName, 'ESG risk score': esg, 'ESG percentile': percentile, 'Controversy level': controverse, 'Environmental risk': envrisk, 'Sustain data url': urlEsg};
+                //business.esgData = esgData
+                //business.brands = brands;
                 
                 console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brandname));   
                 return(business);       

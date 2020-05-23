@@ -1,3 +1,26 @@
+function checkBrand (brandname) {
+  quickstartQuery(brandname);
+  console.log('looking into db');
+  return(brandname)
+}
+
+function quickstartQuery(firestore) {
+  // [START quickstart_query]
+  // Realtime listens are not yet supported in the Node.js SDK
+
+  businessRef.where('Facebook', 'in',  'Scraper')
+    .get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        console.log(doc.id, '=>', doc.data());
+      });
+    })
+    .catch(err => {
+      console.log('Error getting data', err);
+    });
+  }
+
+
 let done = true
 
 

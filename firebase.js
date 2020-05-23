@@ -27,7 +27,12 @@ function recordBusiness (business) {
     //var data = business.yahooData
     //var dataBrand = brand.brandname
     addBusiness = businessRef.add({
-      Scraper: business
+      yahoo_uid: business.yahoo_uid,
+      yahoo_name: business.yahoo_name,
+      yahoo_esg: business.yahoo_esg,
+      yahoo_percentile: business.yahoo_percentile,
+      yahoo_controverse: business.yahoo_controverse,
+      yahoo_envrisk: business.yahoo_envrisk,
     }).then(ref => {
       console.log('Added document with ID: ', ref.id);
     });
@@ -37,6 +42,7 @@ function recordBusiness (business) {
   }
 
   module.exports = recordBusiness;
+  //module.exports = checkBrand;
 /*
 function recordBrand (brand) {
       var data = brand
