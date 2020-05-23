@@ -24,15 +24,18 @@ let businessRef = firestore.collection('businesses')
 //let brandRef = firestore.collection('brands')
 
 function recordBusiness (business) {
-    //var data = business.yahooData
-    //var dataBrand = brand.brandname
+    if (!business.yahoo_uid) {
+      console.log('no business to be added');
+    } else {
     addBusiness = businessRef.add({
+    //addBusiness = businessRef.add({
       yahoo_uid: business.yahoo_uid,
-      yahoo_name: business.yahoo_name,
+      name: business.name,
       yahoo_esg: business.yahoo_esg,
       yahoo_percentile: business.yahoo_percentile,
       yahoo_controverse: business.yahoo_controverse,
       yahoo_envrisk: business.yahoo_envrisk,
+      small_business: business.small_business
     }).then(ref => {
       console.log('Added document with ID: ', ref.id);
     });
@@ -40,87 +43,25 @@ function recordBusiness (business) {
       console.log('Add: ', res);
     });
   }
+  }
+/*
+  function recordBrand (brand) {
+    addBrand = brandRef.add({
+    //addBusiness = businessRef.add({
+      name: brand.name,
+      business_ref: brand.business_ref,
+      small_business: brand.small_business
+    }).then(ref => {
+      console.log('Added document with ID: ', ref.id);
+    });
+    return addBusiness.then(res => {
+      console.log('Add: ', res);
+    });
+  }
+  */
 
   module.exports = recordBusiness;
-  //module.exports = checkBrand;
-/*
-function recordBrand (brand) {
-      var data = brand
-      addBrand = brandRef.add({
-        yahoo_Ref: data
-      }).then(ref => {
-        console.log('Added document with ID: ', ref.id);
-      });
-      return addBrand.then(res => {
-        console.log('Add: ', res);
-      });
-    };
-    */
-
-    /*
-    let setDoc = firestore.collection('cities').doc('Pars').set(data);
-
-    return setDoc.then(res => {
-      console.log('Set: ', res);
-    });
-    */
-
-  // can also be writtem const docRef = firestore.collection("businesses/businessData")
-//let businessRef = firestore.collection("businesses").doc(docName);
-//let docName = JSON.stringify(business.yahooData.esgCode);
-
-
-//businessRef.set({
-//  example: business.yahooData
-//});
-
-/*
-let db = admin.database();
-let ref = db.ref("restricted_access/secret_document");
-let businesssRef = ref.child("business");
-var brandRef = ref.child("brands");
-
-ref.once("value", function(snapshot) {
-  console.log(snapshot.val());
-});
-*/
-
-/*
-function recordBrand (brand) {
-  brandRef.set({
-    Google_brand: {
-      brand_data: brand,
-    },
-  });
-  return(brand);
-  }
-*/
-
-/*
-function recordBusiness (business) {
-  console.log('recordBusiness function started');
-  const name = business.yahooData.uid;
-  businesssRef.set({
-    name: {
-      Yahoo_data: business.yahooData
-    }
-});
-return (business);
-}
-*/
-
-  /*let docRef = firestore.collection('brands').doc('Paris');
-
-  let setAda = docRef.set({
-    first: 'Ada',
-    last: 'Lovelace',
-    born: 1815
-  });*/
-
-
-//module.exports = recordBrand;
-//module.exports = demoInitialize;
-//module.exports = recordBrand;
+  //module.exports = recordBrand;
 
     /*let docRef = firestore.collection('brands').doc('Paris');
     let setAda = docRef.set({

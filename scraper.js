@@ -1,8 +1,7 @@
 const request = require('request');
 const cheerio = require('cheerio');
 
-function scraper(brandname, business) {
-
+function scraper(brandname, brand, business) {
     const url = "https://finance.yahoo.com/lookup?s=";
     var fullurl = url + brandname;
     console.log(fullurl);
@@ -20,13 +19,18 @@ function scraper(brandname, business) {
             var yahooCode = $("td[data-reactid='56']").text().toString();
             var yahooName = $("td[data-reactid='58']").text().toString();
 
-            console.log(JSON.stringify(
-                brandname + 
-                ' has been identified as '+ 
-                yahooName + 
-                ' on Yahoo, code: ' + 
-                yahooCode));
+            brand.business_ref = yahooCode
 
+            if(yahooCode == ""){
+                console.log('no data idtentified by scraper for ' + JSON.stringify(brand));
+            } else {
+                console.log(JSON.stringify(
+                    brandname + 
+                    ' has been identified as '+ 
+                    yahooName + 
+                    ' on Yahoo, code: ' + 
+                    yahooCode));
+    
             // find esg data url
             const urlBusiness = "https://finance.yahoo.com/quote/"
             const urlSustain = "/sustainability"
@@ -47,25 +51,22 @@ function scraper(brandname, business) {
                 var controverse = $("div[data-reactid='79']").text().toString();
 
                 //store data
-                var brands = [];
-                brands.push(brandname); 
 
                 business.yahoo_uid = yahooCode;
-                business.yahoo_name = yahooName;
+                business.name = yahooName;
                 business.yahoo_esg = esg;
                 business.yahoo_percentile = percentile;
                 business.yahoo_controverse = controverse;
                 business.yahoo_envrisk = envrisk;
-                //esgData = {'Business name': yahooName, 'ESG risk score': esg, 'ESG percentile': percentile, 'Controversy level': controverse, 'Environmental risk': envrisk, 'Sustain data url': urlEsg};
-                //business.esgData = esgData
-                //business.brands = brands;
-                
-                console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brandname));   
+                business.small_business = "new"
+            }   
+                console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brand));   
                 return(business);       
-                }    
-            })
-        } 
-        }) 
+                });  
+            }
+        }
+        return(business);
+        })
     };
 
     module.exports = scraper;
