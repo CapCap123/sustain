@@ -23,6 +23,7 @@ function scraper(brandname, brand, business) {
 
             if(yahooCode == ""){
                 console.log('no data idtentified by scraper for ' + JSON.stringify(brand));
+                business = brand;
             } else {
                 console.log(JSON.stringify(
                     brandname + 
