@@ -1,4 +1,7 @@
 $( document ).ready(function() {
+  document.getElementById("loadButton").style.display = "none";
+  document.getElementById("allBusinesses").style.display = "none";
+  var number = 0;
 
     // SUBMIT FORM
       $("#businessForm").submit(function(event) {
@@ -21,11 +24,37 @@ $( document ).ready(function() {
         url : "api/businesses/save",
         data : JSON.stringify(formData),
         dataType : 'json',
-        
-        success : function(brand) {
+        async: false,
+
+        success : function(business) {
+        document.getElementById("loadButton").style.display = "none"
+        document.getElementById("getResultDiv").style.display = "none"
+        document.getElementById("getResultsDiv").style.display = "none"
+        number++;
+        if (number > 1) {
+          document.getElementById("allBusinesses").style.display = "block";
+        } else {
+          document.getElementById("allBusinesses").style.display = "none";
+        }
+
+          if (!business.yahoo_uid) {
+            console.log(JSON.stringify(business));
+            setTimeout(displayButton, 1000);
+
             $("#postResultDiv").html("<p>" + 
             "Scraping information for "+ JSON.stringify($("#brandname").val())); 
-        },
+
+            function displayButton(number) {
+              $("#postResultDiv").html("<p>" + "Data ready"); 
+              document.getElementById("loadButton").style.display = "block";
+            }
+
+          } else {
+            console.log(JSON.stringify(business));
+            $("#postResultDiv").html("<p>" + 
+            "information for "+ JSON.stringify(business)); 
+          }
+        }, 
 
         error : function(e) {
           alert("Error!")

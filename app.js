@@ -1,27 +1,24 @@
 var express = require("express");
 var app = express();
-var router = express.Router();
-
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
+var router = express.Router();
 router.use(function (req,res,next) {
   console.log("/" + req.method);
   next();
 });
 
-app.use(express.static('public'));
 var path = __dirname + '/views/';
-
+app.use(express.static('public'));
 app.get("/",function(req,res){
   res.sendFile(path + "index.html");
   console.log('html file sent');
-
 });
+
 
 scraper = require('./scraper.js');
 recordBusiness = require ('./firebase');
-//recordBrand = require ('./firebase');
 
 const admin = require('firebase-admin');
 var firestore = admin.firestore()
@@ -34,6 +31,7 @@ router.post("/api/businesses/save", function(req,res){
 
   brandname = req.body.brandname;
   console.log('check brandname: ' + brandname);
+  business.brandname = brandname;
 
 // look if we know the brand
   checkBrand(brandname);
@@ -80,6 +78,7 @@ router.post("/api/businesses/save", function(req,res){
               querySnapshot.forEach(doc => { //if brand and business exist
               console.log(doc.id, '=>', doc.data());
               business = doc.data(doc.id);
+              business.brandname = brandname;
               console.log('new business in businesses: '+ JSON.stringify(business));
               console.log(JSON.stringify(businesses)+ ' db brand and business')
               businesses.push(business);
@@ -90,9 +89,8 @@ router.post("/api/businesses/save", function(req,res){
         })
       }
     })
-    return(businesses);
+    return res.send(business);
   }
-
 
   // register data in firestore once scrapped
   function recordBusinessData()  {
@@ -108,15 +106,6 @@ router.post("/api/businesses/save", function(req,res){
     return(business);
   }
 });
-
-/*
-function recordBrandData()  {
-  console.log('brand to be recorded: ' +JSON.stringify(brand));
-  recordBrand(brand);
-  console.log('brand data recorded')
-  return(brand);
-  }
-  */
 
 router.get("/api/businesses/all", function(req,res){
   console.log("Get all businesses in js" + JSON.stringify(businesses));

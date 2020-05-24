@@ -52,7 +52,7 @@ function scraper(brandname, brand, business) {
                 var controverse = $("div[data-reactid='79']").text().toString();
 
                 //store data
-
+                business.brandname = brandname;
                 business.yahoo_uid = yahooCode;
                 business.name = yahooName;
                 business.yahoo_esg = esg;
