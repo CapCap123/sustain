@@ -17,7 +17,7 @@ app.get("/",function(req,res){
 });
 
 
-scraper = require('./scraper.js');
+yahooScraper = require('./scraper.js');
 recordBusiness = require ('./firebase');
 
 const admin = require('firebase-admin');
@@ -49,7 +49,7 @@ router.post("/api/businesses/save", function(req,res){
       console.log('brand does not exist in db');
       brand.name = brandname;
       brand.small_business = 'new';
-      scraper(brandname,brand,business);
+      yahooScraper(brandname,brand,business);
       setTimeout(recordBusinessData, 10000);
       //setTimeout(recordBrandData, 10000);
       console.log('scraper and timer started');
@@ -60,22 +60,24 @@ router.post("/api/businesses/save", function(req,res){
           
           let esgRef = doc.data().business_ref; // get details on the brand
           let smallBusiness = doc.data().small_business;
-          //let esgSource = doc.data().esg_source;
 
           if (esgRef == '') {  //if brand has no business_ref, give up
             business = {name: brandname, small_business: smallBusiness}
             businesses.push(business);
             console.log(JSON.stringify(businesses)+ ' db brand no business ref')
             console.log('no esg data available for this brand' + JSON.stringify(business));
+
           } else {  // if brand has esg ref
             let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  esgRef)
             businessQuery.get().then(function(querySnapshot) { 
-              if (querySnapshot.empty) { 
-                scraper(esgRef,brand,business);
+              if (querySnapshot.empty) {  // brand has esg ref but no corresponding business data
+                business.yahoo_uid = esgRef;
+                yahooScraper(brandname,brand,business);
                 setTimeout(recordBusinessData, 10000);
-                console.log(JSON.stringify(businesses)+ ' db brand business ref, no ref found')
-              } else {
-              querySnapshot.forEach(doc => { //if brand and business exist
+                console.log(' db brand business ref, no ref found')
+
+              } else { //if brand and business exist
+              querySnapshot.forEach(doc => { 
               console.log(doc.id, '=>', doc.data());
               business = doc.data(doc.id);
               business.brandname = brandname;
