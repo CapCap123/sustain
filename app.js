@@ -18,7 +18,10 @@ app.get("/",function(req,res){
 
 
 yahooScraper = require('./scraper.js');
-recordBusiness = require ('./firebase');
+//recordBusiness = require ('./firebase.js');
+//recordBrand = require ('./firebase.js');
+
+const { recordBusiness, recordBrand } = require('./firebase.js')
 
 const admin = require('firebase-admin');
 var firestore = admin.firestore()
@@ -51,9 +54,8 @@ router.post("/api/businesses/save", function(req,res){
       brand.small_business = 'new';
       yahooScraper(brandname,brand,business);
       setTimeout(recordBusinessData, 10000);
-      //setTimeout(recordBrandData, 10000);
+      setTimeout(recordBrandData, 12000);
       console.log('scraper and timer started');
-      console.log(JSON.stringify(businesses)+ ' db brand check')
 
     } else { querySnapshot.forEach(doc => { //if brand exists
           console.log(doc.id, '=>', doc.data());
@@ -71,7 +73,7 @@ router.post("/api/businesses/save", function(req,res){
             let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  esgRef)
             businessQuery.get().then(function(querySnapshot) { 
               if (querySnapshot.empty) {  // brand has esg ref but no corresponding business data
-                business.yahoo_uid = esgRef;
+                //business.yahoo_uid = esgRef;
                 yahooScraper(brandname,brand,business);
                 setTimeout(recordBusinessData, 10000);
                 console.log(' db brand business ref, no ref found')
@@ -82,7 +84,6 @@ router.post("/api/businesses/save", function(req,res){
               business = doc.data(doc.id);
               business.brandname = brandname;
               console.log('new business in businesses: '+ JSON.stringify(business));
-              console.log(JSON.stringify(businesses)+ ' db brand and business')
               businesses.push(business);
                 });
               }
@@ -100,13 +101,22 @@ router.post("/api/businesses/save", function(req,res){
     console.log('no business data to record for: ' +JSON.stringify(brand));  
     businesses.push(brand);
     } else {
-    recordBusiness(business);
     console.log('business to be recorded: ' +JSON.stringify(business));
+    recordBusiness(business);
     businesses.push(business);
     console.log('business data recorded')
     }
     return(business);
   }
+
+  function recordBrandData()  {
+    console.log('brand to be recorded: ' +JSON.stringify(brand));
+    recordBrand(brand);
+    console.log('brand data recorded')
+    return(brand);
+  }
+
+
 });
 
 router.get("/api/businesses/all", function(req,res){

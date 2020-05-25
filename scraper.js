@@ -14,20 +14,18 @@ function yahooScraper(brandname, brand, business) {
     else{
         console.log(res.statusCode);
         var $ = cheerio.load(html);
-        // find Yahoo code on search url
-       // var yahooCode = $("td[data-reactid='56']").text().toString();
         var yahooName = $("td[data-reactid='58']").text().toString();
 
         if (!brand.business_ref) {
             var yahooCode = $("td[data-reactid='56']").text().toString();
             brand.business_ref = yahooCode;
         } else {
-            var yahooCode = brand.business_ref
+            var yahooCode = brand.business_ref;
         }
         console.log(yahooCode);
         
         if(yahooCode == ""){
-            console.log('no data idtentified by scraper for ' + JSON.stringify(brand));
+            console.log('no data identified by scraper for ' + JSON.stringify(brand));
             business = brand;
         } else {
             console.log(JSON.stringify(
@@ -37,11 +35,14 @@ function yahooScraper(brandname, brand, business) {
                 ' on Yahoo, code: ' + 
                 yahooCode));
 
-        // find esg data url
+        // find yahoo finances URLs
         const urlBusiness = "https://finance.yahoo.com/quote/"
         const urlSustain = "/sustainability"
+        const urlProfiledata = "/profile"
         var urlEsg = urlBusiness + yahooCode + urlSustain
-        console.log(urlEsg);
+        var urlProfile = urlBusiness + yahooCode + urlProfiledata
+   
+        console.log(urlEsg, urlProfile);
 
         //scrap esg data 
         request(urlEsg,(err,res,html) => {
@@ -55,7 +56,7 @@ function yahooScraper(brandname, brand, business) {
             var envrisk = $("div[data-reactid='31']").find("div[data-reactid='35']").text().toString();
             var controverse = $("div[data-reactid='79']").text().toString();
 
-            //store data
+            //store esg data
             business.yahoo_uid = yahooCode;
             business.name = yahooName;
             business.yahoo_esg = esg;
@@ -65,11 +66,33 @@ function yahooScraper(brandname, brand, business) {
             business.small_business = "new"
         }   
         console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brand));   
-        return(business);  
+        return(business,brand);  
         });
+
+        //scrap profile data 
+        request(urlProfile,(err,res,html) => {
+            if(err){console.log("Error");}
+            else {
+                console.log(res.statusCode);
+                var $ = cheerio.load(html);
+    
+                var employees = $("p[data-reactid='18']").find("span[data-reactid='30']").text().toString();
+                var sector = $("p[data-reactid='18']").find("span[data-reactid='21']").text().toString();
+                var industry = $("p[data-reactid='18']").find("span[data-reactid='25']").text().toString();
+    
+                //store esg data
+                business.employees = employees;
+                business.sector = sector;
+                business.industry = industry;
+            }   
+            console.log('scraper business data: ' + JSON.stringify(business) + 'scraper brand data: ' + JSON.stringify(brand));   
+            return(business,brand);  
+            });
+
+
         }
         }
-        return(business);       
+        return(business,brand);       
     })
 };
 

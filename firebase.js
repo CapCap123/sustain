@@ -17,55 +17,53 @@ admin.initializeApp({
 });
 
 var firestore = admin.firestore()
-//const settings = {timestampsInSnapshots: true};
-//db.settings(settings);
-
-let businessRef = firestore.collection('businesses')
-//let brandRef = firestore.collection('brands')
 
 function recordBusiness (business) {
-    if (!business.yahoo_uid) {
-      console.log('no business to be added');
-    } else {
-    addBusiness = businessRef.add({
-    //addBusiness = businessRef.add({
+  let businessRef = firestore.collection('businesses');
+  addBusiness = businessRef.add({
       yahoo_uid: business.yahoo_uid,
       name: business.name,
       yahoo_esg: business.yahoo_esg,
       yahoo_percentile: business.yahoo_percentile,
       yahoo_controverse: business.yahoo_controverse,
       yahoo_envrisk: business.yahoo_envrisk,
-      small_business: business.small_business
+      small_business: business.small_business,
+      yahoo_employees: business.employees,
+      yahoo_sector: business.sector,
+      yahoo_industry: business.industry,
     }).then(ref => {
-      console.log('Added document with ID: ', ref.id);
+      console.log('Added business with ID: ', ref.id);
     });
     return addBusiness.then(res => {
       console.log('Add: ', res);
     });
   }
-  }
-/*
+
   function recordBrand (brand) {
+    let brandRef = firestore.collection('brands');
+    console.log('brand to be added to db' + JSON.stringify(brand));
     addBrand = brandRef.add({
-    //addBusiness = businessRef.add({
       name: brand.name,
       business_ref: brand.business_ref,
-      small_business: brand.small_business
-    }).then(ref => {
-      console.log('Added document with ID: ', ref.id);
-    });
-    return addBusiness.then(res => {
-      console.log('Add: ', res);
-    });
-  }
-  */
+      small_business: 'yes',
+      }).then(ref => {
+        console.log('Added brand with ID: ', ref.id);
+      });
+      return addBrand.then(res => {
+        console.log('Add: ', res);
+      });
+    }
 
-  module.exports = recordBusiness;
-  //module.exports = recordBrand;
+    module.exports = { recordBrand, recordBusiness };
+
+//const settings = {timestampsInSnapshots: true};
+//db.settings(settings);
+
 
     /*let docRef = firestore.collection('brands').doc('Paris');
     let setAda = docRef.set({
       first: 'Ada',
       last: 'Lovelace',
       born: 1815
-    });*/
+    });
+    */
