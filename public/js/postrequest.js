@@ -27,6 +27,7 @@ $( document ).ready(function() {
         async: false,
 
         success : function(business) {
+        //document.getElementById("postResultDiv").style.display = "inline"
         document.getElementById("loadButton").style.display = "none"
         document.getElementById("getResultDiv").style.display = "none"
         document.getElementById("getResultsDiv").style.display = "none"
@@ -39,7 +40,7 @@ $( document ).ready(function() {
 
           if (!business.yahoo_uid) {
             console.log(JSON.stringify(business));
-            setTimeout(displayButton, 1000);
+            setTimeout(displayButton, 5000);
 
             $("#postResultDiv").html("<p>" + 
             "Scraping information for "+ JSON.stringify($("#brandname").val())); 

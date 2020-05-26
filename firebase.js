@@ -45,7 +45,8 @@ function recordBusiness (business) {
     addBrand = brandRef.add({
       name: brand.name,
       business_ref: brand.business_ref,
-      small_business: 'yes',
+      small_business: 'new',
+      //business_name: brand.business_name,
       }).then(ref => {
         console.log('Added brand with ID: ', ref.id);
       });
