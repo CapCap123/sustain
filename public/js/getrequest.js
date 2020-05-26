@@ -50,10 +50,10 @@ $( document ).ready(function() {
           } else {
             if (yourBusiness.yahoo_esg == "") {
               $("#getResultDiv").html("<p>" + 
-              yourBusiness.brandname + " belongs to "+ yourBusiness.name + 
+              yourBusiness.brandName + " belongs to "+ yourBusiness.name + 
               "<p>" + yourBusiness.name + " did not make their information public");
             } else {
-            $("#getResultDiv").html("<p>" + yourBusiness.brandname + " belongs to " + yourBusiness.name +
+            $("#getResultDiv").html("<p>" + yourBusiness.brandName + " belongs to " + yourBusiness.name +
             "<p>Here is what we found about " + yourBusiness.name + 
             ":<p>- ESG risk score: "+ yourBusiness.yahoo_esg + "% (" + yourBusiness.yahoo_percentile +
             ")<p>- Environmental risk: "+ yourBusiness.yahoo_envrisk); 

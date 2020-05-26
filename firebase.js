@@ -4,11 +4,11 @@ const debug = require('debug')('firestore-snippets-node');
 const admin = require('firebase-admin');
 // [END firestore_deps]
 
-// We supress these logs when not in NODE_ENV=debug for cleaner Mocha output
-let console = {log: debug};
-
 // Fetch the service account key JSON file contents
 let serviceAccount = require("/Users/Capucine/Desktop/Platform/Code/Firebase/servicekey.json");
+
+// We supress these logs when not in NODE_ENV=debug for cleaner Mocha output
+let console = {log: debug};
 
 // Initialize the app with a service account, granting admin privileges
 admin.initializeApp({
@@ -18,35 +18,49 @@ admin.initializeApp({
 
 var firestore = admin.firestore()
 
-function recordBusiness (business) {
+function saveBusiness (business) {
   let businessRef = firestore.collection('businesses');
   addBusiness = businessRef.add({
-      yahoo_uid: business.yahoo_uid,
-      name: business.name,
-      yahoo_esg: business.yahoo_esg,
-      yahoo_percentile: business.yahoo_percentile,
-      yahoo_controverse: business.yahoo_controverse,
-      yahoo_envrisk: business.yahoo_envrisk,
-      small_business: business.small_business,
-      yahoo_employees: business.employees,
-      yahoo_sector: business.sector,
-      yahoo_industry: business.industry,
-    }).then(ref => {
-      console.log('Added business with ID: ', ref.id);
-    });
-    return addBusiness.then(res => {
-      console.log('Add: ', res);
-    });
-  }
+    yahoo_uid: business.yahoo_uid,
+    name: business.name,
+    yahoo_esg: business.yahoo_esg,
+    yahoo_percentile: business.yahoo_percentile,
+    yahoo_controverse: business.yahoo_controverse,
+    yahoo_envrisk: business.yahoo_envrisk,
+    yahoo_employees: business.employees,
+    yahoo_sector: business.sector,
+    yahoo_industry: business.industry,
+    new_business: 'yes',
+  }).then(ref => {
+    console.log('Added business with ID: ', ref.id);
+  });
+  return addBusiness.then(res => {
+    console.log('Add: ', res);
+  });
+}
 
-  function recordBrand (brand) {
+  function saveBrand (brand) {
     let brandRef = firestore.collection('brands');
+    let parent = brand.business_ref;
     console.log('brand to be added to db' + JSON.stringify(brand));
-    addBrand = brandRef.add({
-      name: brand.name,
-      business_ref: brand.business_ref,
-      small_business: 'new',
-      //business_name: brand.business_name,
+    if (parent == '') {
+      addBrand = brandRef.add({
+        name: brand.name,
+        small_business: 'new',
+        websites: [brand.website],
+      }).then(ref => {
+        console.log('Added brand with ID: ', ref.id);
+      });
+      return addBrand.then(res => {
+        console.log('Add: ', res);
+      });
+    } else {
+      addBrand = brandRef.add({
+        name: brand.name,
+        small_business: 'new',
+        business_name: brand.business_name,
+        business_ref: brand.business_ref,
+        websites: [brand.website],
       }).then(ref => {
         console.log('Added brand with ID: ', ref.id);
       });
@@ -54,8 +68,9 @@ function recordBusiness (business) {
         console.log('Add: ', res);
       });
     }
+  }
 
-    module.exports = { recordBrand, recordBusiness };
+  module.exports = { saveBrand, saveBusiness };
 
 //const settings = {timestampsInSnapshots: true};
 //db.settings(settings);
