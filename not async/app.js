@@ -2,13 +2,13 @@ var express = require("express");
 const admin = require('firebase-admin');
 var bodyParser = require('body-parser');
 
-const {yahooDataScraper, yahooCodeScraper} = require('./scraper.js');
-const { saveBrand, saveBusiness } = require ('./firebase');
+const yahooScraper = require('./scraperarchive.js');
+const { saveBrand, saveBusiness } = require ('../firebase');
+
 
 var app = express();
 app.use(bodyParser.json());
 var router = express.Router();
-
 router.use(function (req,res,next) {
   console.log("/" + req.method);
   next();
@@ -22,6 +22,7 @@ app.get("/",function(req,res){
 });
 
 var firestore = admin.firestore()
+var businesses = [];
 
 router.post("/api/businesses/save", function(req,res){
   var business = {};
@@ -32,98 +33,14 @@ router.post("/api/businesses/save", function(req,res){
   console.log('check brandname: ' + brandname);
   business.brandName = brandname;
   brand.name = brandname;
-  brand.website = websiteName;
 
 // look if we know the brand
-    checkBusinessData(brand)
+  checkBrand(brandname);
 
-  async function checkBrand(websiteName) {
-    try {
-      let brandQuery = firestore.collection('brands').where('websites', 'array-contains',  websiteName);
-      let querySnapshot = await brandQuery.get()
-      if (querySnapshot.empty) {
-        console.log('brand does not exist in db');
-        brand.small_business = 'new';        
-      } else {
-        querySnapshot.forEach(doc => { //if brand exists
-          var businessRef = doc.data().business_ref
-          if(!businessRef) {
-            console.log('this brand has no business ref')
-          } else{
-            brand.business_ref = businessRef
-            console.log('brand exists and has business ref')
-          }
-        })
-      }
-    } catch(error) {
-      console.log(error)
-    }
-  // record brand
-  console.log(JSON.stringify(brand))
-  return brand;
+  function checkBrand (brandname) {
+    quickstartQuery(firestore);
+    return brandname
   }
-
-    async function checkBusinessRef(brand) {
-      try {
-        var matchedBrand = await checkBrand(brand.website) 
-          if (!matchedBrand.business_ref) {
-              yahooCode = await yahooCodeScraper(brand);
-              matchedBrand.business_ref = yahooCode;
-              console.log('scraper for code launched')
-          } else {
-              console.log('this brand already has a business ref')
-          }
-      } catch(error){
-          console.log(error)
-      }
-      console.log('matched brand' + JSON.stringify(matchedBrand))
-      return matchedBrand
-    }
-  
-    async function checkBusinessData(brand) {
-      try {   
-        var matchedBusiness = await checkBusinessRef(brand)
-        var yahooCode = matchedBusiness.business_ref
-        if (yahooCode.empty) {
-          console.log('no business ref found for this brand')
-          scrapedBusiness = matchedBusiness
-        } else {
-          yahooCode = matchedBusiness.business_ref
-          let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  yahooCode)
-          let businessSnapshot = await businessQuery.get()
-          if (businessSnapshot.empty) {
-            console.log('scraper for business launched')
-            scrapedBusiness = await yahooDataScraper(business)
-          } else { businessSnapshot.forEach(doc => {
-            scrapedBusiness = doc.data(doc.id)
-            console.log('this business already exists in DB')
-            })
-          }
-        }
-      } catch(error) {
-            console.log(error);
-      }
-      console.log('scraped business' + JSON.stringify(scrapedBusiness))
-      return scrapedBusiness
-    }
-})
-
-router.get("/api/businesses/all", function(req,res){
-  console.log("Get all businesses in js" + JSON.stringify(businesses));
-  res.send(businesses);
-});
- 
-app.use("/",router);
-
-app.use("*",function(req,res){
-  res.sendFile(path + "404.html");
-});
- 
-app.listen(8081, function () {
-  console.log('Listening on 8081')
-});
-
-    /*
   
   function quickstartQuery(firestore) {
     let brandQuery = firestore.collection('brands').where('websites', 'array-contains',  websiteName);
@@ -207,4 +124,18 @@ app.listen(8081, function () {
       }
     }
 });
-*/
+
+router.get("/api/businesses/all", function(req,res){
+  console.log("Get all businesses in js" + JSON.stringify(businesses));
+  res.send(businesses);
+});
+ 
+app.use("/",router);
+
+app.use("*",function(req,res){
+  res.sendFile(path + "404.html");
+});
+ 
+app.listen(8081, function () {
+  console.log('Listening on 8081')
+})
