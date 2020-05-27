@@ -1,7 +1,7 @@
 var express = require("express");
 var bodyParser = require('body-parser');
 
-const {saveBrandData} = require('./checkdata.js')
+const {checkBusinessData} = require('./checkdata.js')
 
 var app = express();
 app.use(bodyParser.json());
@@ -19,7 +19,8 @@ app.get("/",function(req,res){
   console.log('html file sent');
 });
 
-router.post("/api/businesses/save", function(req,res){
+router.post("/api/businesses/save", async function(req,res){
+  try {
   var brand = {};
 
   brandname = req.body.brandname
@@ -28,7 +29,14 @@ router.post("/api/businesses/save", function(req,res){
   brand.name = brandname;
   brand.website = websiteName;
 
-  saveBrandData(brand)
+  results = await checkBusinessData(brand)
+
+  res.send(results)
+  console.log(results)
+
+  } catch(error) {
+    console.log(error)
+  }
 });
 
 router.get("/api/businesses/all", function(req,res){

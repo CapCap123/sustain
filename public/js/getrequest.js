@@ -1,38 +1,5 @@
 $( document ).ready(function() {
   
-    // GET REQUEST
-    $("#allBusinesses").click(function(event){
-      event.preventDefault();
-      ajaxGet();
-      console.log('ajaxGet called')
-    });
-    
-    // DO GET
-    function ajaxGet(){
-      $.ajax({
-        type : "GET",
-        url : window.location + "api/businesses/all",
-
-        success: function(result){
-          document.getElementById("getResultsDiv").style.display = "inline"
-          $('#getResultsDiv ul').empty();
-          $.each(result, function(i, business){
-            $('#getResultsDiv .list-group').append(JSON.stringify(business) + "<br>")
-          });
-        },
-        error : function(e) {
-          $("#getResultsDiv").html("<strong>Error</strong>");
-          console.log("ERROR: ", e);
-        }
-        });  
-      }
-
-    // LOAD REQUEST
-    $("#loadButton").click(function(event){
-      event.preventDefault();
-      ajaxLoad();
-    });
-            
     // DO LOAD
     function ajaxLoad(){
       $.ajax({

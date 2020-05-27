@@ -24,39 +24,30 @@ $( document ).ready(function() {
         url : "api/businesses/save",
         data : JSON.stringify(formData),
         dataType : 'json',
-        async: false,
+        async: true,
 
-        success : function(business) {
-        //document.getElementById("postResultDiv").style.display = "inline"
-        document.getElementById("loadButton").style.display = "none"
-        document.getElementById("getResultDiv").style.display = "none"
-        document.getElementById("getResultsDiv").style.display = "none"
-        number++;
-        if (number > 1) {
-          document.getElementById("allBusinesses").style.display = "block";
-        } else {
-          document.getElementById("allBusinesses").style.display = "none";
-        }
-
-          if (!business.yahoo_uid) {
-            console.log(JSON.stringify(business));
-            setTimeout(displayButton, 5000);
-
+        success : function(results) {
+          document.getElementById("postResultDiv").style.display = "inline"
+          document.getElementById("loadButton").style.display = "none"
+          document.getElementById("getResultDiv").style.display = "none"
+          document.getElementById("getResultsDiv").style.display = "none"
+          console.log(results)
+          if(results.hasBusiness_ref == false) {
             $("#postResultDiv").html("<p>" + 
-            "Scraping information for "+ JSON.stringify($("#brandname").val())); 
-
-            function displayButton(number) {
-              $("#postResultDiv").html("<p>" + "Data ready"); 
-              document.getElementById("loadButton").style.display = "block";
-            }
-
+              "We did not find official information about "+ results.name + "<p>");   
           } else {
-            console.log(JSON.stringify(business));
-            $("#postResultDiv").html("<p>" + 
-            "information for "+ JSON.stringify(business)); 
+            if (results.hasEsg == false) {
+              $("#postResultDiv").html("<p>" + 
+              results.name + " belongs to "+ results.business_name + 
+              "<p>" + results.business_name + " did not make their information public");
+            } else {
+              $("#postResultDiv").html("<p>" + results.name + " belongs to " + results.business_name +
+              "<p>Here is what we found about " + results.business_name + 
+              ":<p>- ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
+              ")<p>- Environmental risk: "+ results.yahoo_envrisk); 
+            }
           }
-        }, 
-
+        },
         error : function(e) {
           alert("Error!")
           console.log("ERROR: ", e);

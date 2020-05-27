@@ -1,7 +1,5 @@
 const axios = require ('axios');
-const request = require('request');
 const cheerio = require('cheerio');
-// use axios instead of request
 
 
 //Code Scraper
@@ -88,10 +86,16 @@ async function yahooEsgScraper(business) {
         var controverse = $("div[data-reactid='79']").text().toString();
 
         //store esg data
-        business.yahoo_uid = esg;
+        business.yahoo_esg = esg;
         business.yahoo_percentile = percentile;                
         business.yahoo_controverse = controverse;
         business.yahoo_envrisk = envrisk;
+
+        if (esg.length < 1) {
+            business.hasEsg = false 
+        } else {
+            business.hasEsg = true
+        }
     } catch(error) {
         console.log(error)
     }
