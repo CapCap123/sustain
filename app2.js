@@ -32,74 +32,80 @@ router.post("/api/businesses/save", function(req,res){
   console.log('check brandname: ' + brandname);
   business.brandName = brandname;
   brand.name = brandname;
-  brand.website = websiteName
+  brand.website = websiteName;
 
 // look if we know the brand
-    checkBusinessRef(brand,business)
+    checkBusinessData(brand)
 
-    async function checkBrand(websiteName,brand) {
-        try {
-        let brandQuery = firestore.collection('brands').where('websites', 'array-contains',  websiteName);
-        brandQuery.get().then(function(brandSnapshot) {
-            if (brandSnapshot.empty) { // if brand does not exist
-                console.log('brand does not exist in db');
-                brand.small_business = 'new';
-                brand.website = websiteName;
-            } else { 
-                brandSnapshot.forEach(doc => { //if brand exists
-                    var businessRef = doc.data().business_ref
-                    if(!businessRef) {
-                        console.log('this brand has no business ref')
-                    } else{
-                        brand.business_ref = businessRef
-                        console.log('brand exists and has business ref')
-                    }
-                })
-            }
+  async function checkBrand(websiteName) {
+    try {
+      let brandQuery = firestore.collection('brands').where('websites', 'array-contains',  websiteName);
+      let querySnapshot = await brandQuery.get()
+      if (querySnapshot.empty) {
+        console.log('brand does not exist in db');
+        brand.small_business = 'new';        
+      } else {
+        querySnapshot.forEach(doc => { //if brand exists
+          var businessRef = doc.data().business_ref
+          if(!businessRef) {
+            console.log('this brand has no business ref')
+          } else{
+            brand.business_ref = businessRef
+            console.log('brand exists and has business ref')
+          }
         })
-        } catch(error) {
-            console.log(error)
-        }
-    console.log(brand)
-    return brand;
+      }
+    } catch(error) {
+      console.log(error)
     }
+  // record brand
+  console.log(JSON.stringify(brand))
+  return brand;
+  }
 
     async function checkBusinessRef(brand) {
-    try {
-        var matchedBrand = await checkBrand(brand.website,brand) 
-        if (!matchedBrand.business_ref) {
-            matchedBrand.business_ref = await yahooCodeScraper(brand);
-            console.log('scraper for code launched')
+      try {
+        var matchedBrand = await checkBrand(brand.website) 
+          if (!matchedBrand.business_ref) {
+              yahooCode = await yahooCodeScraper(brand);
+              matchedBrand.business_ref = yahooCode;
+              console.log('scraper for code launched')
+          } else {
+              console.log('this brand already has a business ref')
+          }
+      } catch(error){
+          console.log(error)
+      }
+      console.log('matched brand' + JSON.stringify(matchedBrand))
+      return matchedBrand
+    }
+  
+    async function checkBusinessData(brand) {
+      try {   
+        var matchedBusiness = await checkBusinessRef(brand)
+        var yahooCode = matchedBusiness.business_ref
+        if (yahooCode.empty) {
+          console.log('no business ref found for this brand')
+          scrapedBusiness = matchedBusiness
         } else {
-            console.log('this brand already has a business ref')
-        }
-    } catch(error){
-        console.log(error)
-    }
-    return matchedBrand.business_ref
-    }
-
-    /*
-    async function checkBusinessData(brand,business) {
-        try {   
-            var yahooCode = await checkBusinessRef(brand)
-            businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  await yahooCode)
-            businessQuery.get().then(function(businessSnapshot) {
-                if (businessSnapshot.empty) {
-                    console.log('scraper for business launched')
-                   // scrapedBusiness = await yahooDataScraper(business)
-                } else {
-                    business = doc.data()
-                    console.log('this business already exists in DB')
-                }
+          yahooCode = matchedBusiness.business_ref
+          let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  yahooCode)
+          let businessSnapshot = await businessQuery.get()
+          if (businessSnapshot.empty) {
+            console.log('scraper for business launched')
+            scrapedBusiness = await yahooDataScraper(business)
+          } else { businessSnapshot.forEach(doc => {
+            scrapedBusiness = doc.data(doc.id)
+            console.log('this business already exists in DB')
             })
-        } catch(error) {
-            console.log(error);
+          }
         }
-        console.log(business)
-        return business
+      } catch(error) {
+            console.log(error);
+      }
+      console.log('scraped business' + JSON.stringify(scrapedBusiness))
+      return scrapedBusiness
     }
-    */
 })
 
 router.get("/api/businesses/all", function(req,res){

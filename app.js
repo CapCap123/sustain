@@ -2,7 +2,7 @@ var express = require("express");
 const admin = require('firebase-admin');
 var bodyParser = require('body-parser');
 
-const yahooScraper = require('./scraper.js');
+const yahooScraper = require('./scraperarchive.js');
 const { saveBrand, saveBusiness } = require ('./firebase');
 
 

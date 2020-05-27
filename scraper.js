@@ -1,5 +1,6 @@
 const request = require('request');
 const cheerio = require('cheerio');
+// use axios instead of request
 
 async function yahooCodeScraper(brand) {
     try {
@@ -9,42 +10,31 @@ async function yahooCodeScraper(brand) {
     var fullurl = url + brandname;
     console.log(fullurl);
 
-    await request(fullurl,(err,res,html)=> {
+    yahooCode = await request(fullurl,(err,res,html)=> {
         if(err){
             console.log("Error looking for Yahoo code");}
         else{
             console.log(res.statusCode);
             var $ = cheerio.load(html);
             var yahooName = $("td[data-reactid='58']").text().toString();
-
-            if (!brand.business_ref) {
-                var yahooCode = $("td[data-reactid='56']").text().toString();
-                brand.business_ref = yahooCode;
-                brand.business_name = yahooName;
-                console.log('no business ref, yahoo code: ' + yahooCode +'yahoo name: ' + yahooName);
-
-            } else {
-                yahooCode = brand.business_ref;
-                if (!brand.business_name) {
-                    brand.business_name = yahooName
-                } else {
-                    console.log('business name already exists for this brand');
-                }
-                console.log('business ref already exists for this brand: ' + yahooCode);
-            }
-            console.log('Yahoo code is: ' + yahooCode);
+            var yahoo_uid = $("td[data-reactid='56']").text().toString();
+            brand.business_ref = yahoo_uid;
+            brand.business_name = yahooName;
+            console.log('SCRAPER - yahoo code: ' + yahoo_uid + 'yahoo name: ' + yahooName);
         }
-        return yahooCode
+     yahoo_uid
     })
-    return yahooCode
     } catch(error) {
         console.log(error)
     }
+    console.log(yahooCode)
+    return yahooCode
 }
         
-async function yahooDataScraper(brand, business) {
+async function yahooDataScraper(business) {
     try {
-        yahooCode = brand.business_ref
+        yahooCode = business.business_ref
+        business.yahoo_uid = yahooCode
     // find yahoo URLs
         const urlBusiness = "https://finance.yahoo.com/quote/"
         const urlSustain = "/sustainability"
