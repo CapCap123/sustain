@@ -1,50 +1,45 @@
 const request = require('request');
 const cheerio = require('cheerio');
 
-async function yahooCodeScraper(brand) {
+async function yahooScraper(brandname, brand, business) {
     try {
 //find Yahoo Code
-    var brandname = brand.name
     const url = "https://finance.yahoo.com/lookup?s=";
     var fullurl = url + brandname;
     console.log(fullurl);
 
-    await request(fullurl,(err,res,html)=> {
+    request(fullurl,(err,res,html)=> {
         if(err){
             console.log("Error looking for Yahoo code");}
         else{
+
             console.log(res.statusCode);
             var $ = cheerio.load(html);
             var yahooName = $("td[data-reactid='58']").text().toString();
 
             if (!brand.business_ref) {
                 var yahooCode = $("td[data-reactid='56']").text().toString();
+                business.yahoo_uid = yahooCode;
+                business.name = yahooName;
                 brand.business_ref = yahooCode;
                 brand.business_name = yahooName;
                 console.log('no business ref, yahoo code: ' + yahooCode +'yahoo name: ' + yahooName);
 
             } else {
                 yahooCode = brand.business_ref;
+                business.yahoo_uid = brand.business_ref;
                 if (!brand.business_name) {
                     brand.business_name = yahooName
+                    business.name = yahooName;
                 } else {
+                    business.name = brand.business_name;
                     console.log('business name already exists for this brand');
                 }
                 console.log('business ref already exists for this brand: ' + yahooCode);
             }
             console.log('Yahoo code is: ' + yahooCode);
-        }
-        return yahooCode
-    })
-    return yahooCode
-    } catch(error) {
-        console.log(error)
-    }
-}
         
-async function yahooDataScraper(brand, business) {
-    try {
-        yahooCode = brand.business_ref
+
     // find yahoo URLs
         const urlBusiness = "https://finance.yahoo.com/quote/"
         const urlSustain = "/sustainability"
@@ -55,7 +50,7 @@ async function yahooDataScraper(brand, business) {
         console.log(urlEsg, urlProfile);
 
         //scrap esg data 
-        await request(urlEsg,(err,res,html) => {
+        request(urlEsg,(err,res,html) => {
             if(err){console.log("Error");}
             else {
                 console.log(res.statusCode);
@@ -73,12 +68,11 @@ async function yahooDataScraper(brand, business) {
                 business.yahoo_envrisk = envrisk;
                 business.small_business = "new"
             }   
-
-        return business;  
+            return business;  
         });
 
         //scrap profile data 
-        await request(urlProfile,(err,res,html) => {
+        request(urlProfile,(err,res,html) => {
             if(err){console.log("Error");}
             else {
                 console.log(res.statusCode);
@@ -92,15 +86,16 @@ async function yahooDataScraper(brand, business) {
                 business.employees = employees;
                 business.sector = sector;
                 business.industry = industry;
-            } 
-        return business;
-        })
-    } catch(error) {
-        console.log(error)
-    }
-        console.log('scraper business data: ' + JSON.stringify(business));   
-        return business;  
+            }   
+            console.log('scraper business data: ' + JSON.stringify(business));   
+            return business;  
+        });
         }
+        return business;    
+    });
+} catch (error) {
+    console.log(error)
+}
+}
 
-
-module.exports = {yahooCodeScraper, yahooDataScraper};
+module.exports = yahooScraper;
