@@ -22,6 +22,7 @@ function saveBusiness (business) {
   let businessRef = firestore.collection('businesses');
   addBusiness = businessRef.add({
     yahoo_uid: business.business_ref,
+    yahoo_esg: business.yahoo_esg,
     name: business.business_name,
     yahoo_percentile: business.yahoo_percentile,
     yahoo_controverse: business.yahoo_controverse,

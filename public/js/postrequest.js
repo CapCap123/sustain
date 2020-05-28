@@ -8,6 +8,7 @@ $( document ).ready(function() {
       // Prevent the form from submitting via the browser.
       event.preventDefault();
       ajaxPost();
+      resetData();
     });
       
       function ajaxPost(){
@@ -52,13 +53,15 @@ $( document ).ready(function() {
           alert("Error!")
           console.log("ERROR: ", e);
         }
-      });
-        
-        // Reset FormData after Posting
-        resetData();
-      };
-      
+        });
+
+      resetData();
       function resetData(){
         $("#businessname").val("");
       }
+    };
+    resetData();
+    function resetData(){
+      $("#businessname").val("");
+    }
   })

@@ -19,8 +19,10 @@ async function checkBrand(brand) {
         querySnapshot.forEach(doc => { //if brand exists
           var businessRef = doc.data().business_ref
           var businessName = doc.data().business_name
-          if(!businessRef) {
+          if((!businessRef) || businessRef.empty) {
             console.log('this brand has no business ref')
+            brand.hasEsg = false;
+            brand.business_ref = ""      
           } else{
             brand.business_ref = businessRef
             brand.business_name = businessName
@@ -40,12 +42,13 @@ async function checkBrand(brand) {
   async function checkBusinessRef(brand) {
     try {
       var matchedBrand = await checkBrand(brand) 
-        if (!matchedBrand.business_ref) {
+      var newBrand = await matchedBrand.new_brand
+        if (newBrand == true) {
             yahooCode = await yahooCodeScraper(brand);
             matchedBrand.business_ref = yahooCode;
             console.log('scraper for code launched')
         } else {
-            console.log('this brand already has a business ref')
+            console.log('no need to launch code scraper')
         }
     } catch(error){
       console.log(error)
@@ -57,7 +60,7 @@ async function checkBrand(brand) {
   async function checkBusinessData(brand) {
     try {   
       var matchedBusiness = await checkBusinessRef(brand)
-      var yahooCode = matchedBusiness.business_ref
+      var yahooCode = await matchedBusiness.business_ref
       saveBrandData(await matchedBusiness);
       if (yahooCode.length < 1) {
         console.log('no business ref found for this brand')
@@ -80,10 +83,11 @@ async function checkBrand(brand) {
           scrapedBusiness.business_ref = scrapedBusiness.yahoo_uid
           scrapedBusiness.business_name = scrapedBusiness.name
           scrapedBusiness.name = matchedBusiness.name
+          scrapedBusiness.yahoo_esg = matchedBusiness.yahoo_esg
           scrapedBusiness.hasBusiness_ref = true
-          yahooCode = scrapedBusiness.business_ref
+          esg = scrapedBusiness.yahoo_esg
           console.log('this business already exists in DB')
-            if (yahooCode_esg.length < 1) {
+            if ((!esg) || (esg.length < 1)) {
               scrapedBusiness.hasEsg = false
             } else {
               scrapedBusiness.hasEsg = true
