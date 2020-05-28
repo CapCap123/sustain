@@ -21,7 +21,7 @@ var firestore = admin.firestore()
 function saveBusiness (business) {
   let businessRef = firestore.collection('businesses');
   addBusiness = businessRef.add({
-    yahoo_uid: business.yahoo_uid,
+    yahoo_uid: business.business_ref,
     name: business.business_name,
     yahoo_percentile: business.yahoo_percentile,
     yahoo_controverse: business.yahoo_controverse,
