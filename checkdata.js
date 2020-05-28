@@ -81,8 +81,9 @@ async function checkBrand(brand) {
           scrapedBusiness.business_name = scrapedBusiness.name
           scrapedBusiness.name = matchedBusiness.name
           scrapedBusiness.hasBusiness_ref = true
+          yahooCode = scrapedBusiness.business_ref
           console.log('this business already exists in DB')
-            if (scrapedBusiness.yahoo_esg.length < 1) {
+            if (yahooCode_esg.length < 1) {
               scrapedBusiness.hasEsg = false
             } else {
               scrapedBusiness.hasEsg = true
