@@ -129,9 +129,9 @@ async function yahooScraper(business) {
         updatedBusiness = await((yahooEsgScraper(business)))
         businessProfile = await((yahooProfileScraper(business)))
 
-        updatedBusiness.employees = businessProfile.employees;
-        updatedBusiness.sector = businessProfile.sector;
-        updatedBusiness.industry = businessProfile.industry;
+        updatedBusiness.employees = await businessProfile.employees;
+        updatedBusiness.sector = await businessProfile.sector;
+        updatedBusiness.industry = await businessProfile.industry;
     } catch(error){
         console.log(error)
     }
