@@ -49,7 +49,8 @@ app.use("/",router);
 app.use("*",function(req,res){
   res.sendFile(path + "404.html");
 });
- 
-app.listen(8081, function () {
-  console.log('Listening on 8081')
+
+const PORT = process.env.PORT || 8081;
+app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
 });
