@@ -1,0 +1,11 @@
+import {checkBusinessData} from './checkdata.js'
+
+<script type="module" src="../checkdata.js"></script>
+
+     "content_scripts": [ {
+        "matches": ["<all_urls>"],
+        "js": [
+          "popup.js",
+          "firebase.js"
+        ]
+     }]

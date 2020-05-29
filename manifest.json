@@ -1,0 +1,18 @@
+{
+    "manifest_version": 2,
+  
+    "name": "Sustain Report Popup",
+    "description": "Access information on a business impact on environment and ask them for the changes you expect",
+    "version": "1.0",
+  
+    "browser_action": {
+     "default_icon": "./assets/icon.png",
+     "default_popup": "./views/popup.html"
+    },
+    
+    "permissions": [
+     "activeTab"
+     ]
+
+
+  }
