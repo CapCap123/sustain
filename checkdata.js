@@ -59,36 +59,36 @@ async function checkBrand(brand) {
   
   async function checkBusinessData(brand) {
     try {   
-      var matchedBusiness = await checkBusinessRef(brand)
-      var yahooCode = await matchedBusiness.business_ref
-      saveBrandData(await matchedBusiness);
+      var matchedBrand = await checkBusinessRef(brand)
+      var yahooCode = await matchedBrand.business_ref
+      console.log('yahoo code is' + yahooCode)
+      saveBrandData(await matchedBrand);
       if (yahooCode.length < 1) {
         console.log('no business ref found for this brand')
-        scrapedBusiness = matchedBusiness
+        scrapedBusiness = matchedBrand
         scrapedBusiness.new_business = false
         scrapedBusiness.hasBusiness_ref = false
         scrapedBusiness.hasEsg = false
       } else {
-        matchedBusiness.hasBusiness_ref = true
-        matchedBusiness.new_business = true;
+        matchedBrand.hasBusiness_ref = true
         let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  yahooCode)
         let businessSnapshot = await businessQuery.get()          
         if (businessSnapshot.empty) {
           console.log('scraper for business launched')
-          scrapedBusiness = await yahooScraper(matchedBusiness)
+          scrapedBusiness = await yahooScraper(matchedBrand)
           saveBusinessData(await scrapedBusiness)
         } else { businessSnapshot.forEach(doc => {
           scrapedBusiness = doc.data(doc.id)
           scrapedBusiness.new_business = false;
           scrapedBusiness.business_ref = scrapedBusiness.yahoo_uid
           scrapedBusiness.business_name = scrapedBusiness.name
-          scrapedBusiness.name = matchedBusiness.name
-          scrapedBusiness.yahoo_esg = matchedBusiness.yahoo_esg
+          scrapedBusiness.name = matchedBrand.name
           scrapedBusiness.hasBusiness_ref = true
-          esg = scrapedBusiness.yahoo_esg
-          console.log('this business already exists in DB')
+          var esg = scrapedBusiness.yahoo_esg
+          console.log('this business already exists in DB, esg score: ' + JSON.stringify(esg))
             if ((!esg) || (esg.length < 1)) {
               scrapedBusiness.hasEsg = false
+              console.log(JSON.stringify(esg))
             } else {
               scrapedBusiness.hasEsg = true
             }

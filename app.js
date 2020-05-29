@@ -52,5 +52,5 @@ app.use("*",function(req,res){
 
 const PORT = process.env.PORT || 8081;
 app.listen(PORT, () => {
-    console.log(`Our app is running on port ${ PORT }`);
+    console.log(`Running on port ${ PORT }`);
 });
