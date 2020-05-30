@@ -1,3 +1,5 @@
+const {checkBusinessData} = require ('../checkdata.js')
+
 document.addEventListener('DOMContentLoaded', function() {
 
   chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
@@ -7,13 +9,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const www = "www."
     if (name.includes(www) == true) {
-      websiteName = name.replace(www,"")
+      website = name.replace(www,"")
     } else {
-    websiteName = name }
-    console.log(websiteName);
-    //results = await checkBrand(websiteName);
+    website = name }
 
-    /*
+    var websiteArray = website.split(".")
+    websiteName = websiteArray[0];
+
+    console.log(websiteName);
+    results = await checkBrand(websiteName);
+
+    
     async function checkBrand(websiteName){
       try {
       var brand = {};
@@ -31,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(error)
       }
     };
-    */
   });
 
 

@@ -1,12 +1,7 @@
 const debug = require('debug')('firestore-snippets-node');
 const admin = require('firebase-admin');
 
-// Fetch the service account key JSON file contents
-//let data = process.env.GOOGLE_CONFIG_BASE64;
-//let buff = Buffer(JSON.stringify(data), 'base64');
-//let text = buff.toString('ascii');
-//console.log(text);
-let serviceAccount = require ("/Users/Capucine/Desktop/Platform/Code/Firebase/servicekey.json");
+let serviceAccount = require ("/keys/servicekey.json");
 
 // We supress these logs when not in NODE_ENV=debug for cleaner Mocha output
 let console = {log: debug};
