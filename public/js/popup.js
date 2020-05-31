@@ -1,4 +1,4 @@
-const {checkBusinessData} = require ('../checkdata.js')
+import {checkBusinessData} from '/../checkdata.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 

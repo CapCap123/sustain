@@ -1,9 +1,7 @@
 
-const admin = require('firebase-admin');
+//const admin = require('firebase-admin');
 const {yahooScraper, yahooCodeScraper} = require('./scraper.js');
 const { saveBrand, saveBusiness } = require ('./firebase');
-
-var firestore = admin.firestore()
 
 // functions checking in database and requesting scraper as needed
 async function checkBrand(brand) {

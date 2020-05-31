@@ -1,18 +1,8 @@
-const debug = require('debug')('firestore-snippets-node');
-const admin = require('firebase-admin');
+//import * as admin from 'firebase-admin';
+//const { app } = require ('./firebaseConfig');
 
-let serviceAccount = require ("/keys/servicekey.json");
 
-// We supress these logs when not in NODE_ENV=debug for cleaner Mocha output
-let console = {log: debug};
-
-// Initialize the app with a service account, granting admin privileges
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://sustainability-4ae3a.firebaseio.com"
-});
-
-var firestore = admin.firestore()
+//firestore = admin.firestore()
 
 function saveBusiness (business) {
   let businessRef = firestore.collection('businesses');
@@ -67,15 +57,3 @@ function saveBusiness (business) {
   }
 
   module.exports = { saveBrand, saveBusiness };
-
-//const settings = {timestampsInSnapshots: true};
-//db.settings(settings);
-
-
-    /*let docRef = firestore.collection('brands').doc('Paris');
-    let setAda = docRef.set({
-      first: 'Ada',
-      last: 'Lovelace',
-      born: 1815
-    });
-    */
