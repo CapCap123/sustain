@@ -19,11 +19,18 @@
     "express": "^4.17.1",
     "firebase": "^7.14.4",
     "firebase-admin": "^8.12.1",
+    "firebase-functions": "^3.6.2",
     "http": "0.0.1-security",
+    "http2": "^3.3.7",
     "jquery": "^3.5.1",
+    "parcel-plugin-web-extension": "^1.6.1",
     "path": "^0.12.7",
     "popper.js": "^1.16.1",
+    "regenerator-runtime": "^0.13.5",
     "request": "^2.88.2",
     "yarn": "^1.22.4"
+  },
+  "prodDependencies": {
+    "parcel-plugin-web-extension": "^1.6.1"
   }
 }

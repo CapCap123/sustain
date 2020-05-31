@@ -1,13 +1,16 @@
-
 //const admin = require('firebase-admin');
-const {yahooScraper, yahooCodeScraper} = require('./scraper.js');
-const { saveBrand, saveBusiness } = require ('./firebase');
+import {yahooScraper, yahooCodeScraper} from './scraper.js';
+//import { saveBrand, saveBusiness } from ('./firebase');
+
+import db from './background.js';
+
+
 
 // functions checking in database and requesting scraper as needed
 async function checkBrand(brand) {
     try {
     let websiteName = brand.website
-      let brandQuery = firestore.collection('brands').where('websites', 'array-contains',  websiteName);
+      let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
       let querySnapshot = await brandQuery.get()
       if (querySnapshot.empty) {
         console.log('brand does not exist in db');
@@ -60,7 +63,7 @@ async function checkBrand(brand) {
       var matchedBrand = await checkBusinessRef(brand)
       var yahooCode = await matchedBrand.business_ref
       console.log('yahoo code is' + yahooCode)
-      saveBrandData(await matchedBrand);
+      //saveBrandData(await matchedBrand);
       if (yahooCode.length < 1) {
         console.log('no business ref found for this brand')
         scrapedBusiness = matchedBrand
@@ -69,14 +72,14 @@ async function checkBrand(brand) {
         scrapedBusiness.hasEsg = false
       } else {
         matchedBrand.hasBusiness_ref = true
-        let businessQuery = firestore.collection('businesses').where('yahoo_uid', '=',  yahooCode)
+        let businessQuery = db.collection('businesses').where('yahoo_uid', '==',  yahooCode)
         let businessSnapshot = await businessQuery.get()          
         if (businessSnapshot.empty) {
           console.log('scraper for business launched')
           scrapedBusiness = await yahooScraper(matchedBrand)
-          saveBusinessData(await scrapedBusiness)
+         // saveBusinessData(await scrapedBusiness)
         } else { businessSnapshot.forEach(doc => {
-          scrapedBusiness = doc.data(doc.id)
+          let scrapedBusiness = doc.data(doc.id)
           scrapedBusiness.new_business = false;
           scrapedBusiness.business_ref = scrapedBusiness.yahoo_uid
           scrapedBusiness.business_name = scrapedBusiness.name
@@ -100,6 +103,16 @@ async function checkBrand(brand) {
     return scrapedBusiness
   }
 
+  function sendAnswer(scrapedBusiness) {  
+    if (scrapedBusiness.new_business == false) {
+      console.log('no business data to record for: ' +JSON.stringify(scrapedBusiness));  
+    } else {
+      console.log('business to be recorded: ' +JSON.stringify(scrapedBusiness));
+      saveBusiness(scrapedBusiness)
+    }
+    return scrapedBusiness
+  }
+/*
   //functions to record in firestore if new brand/business
   function saveBrandData(matchedBusiness)  {
     if (matchedBusiness.new_brand == true) {
@@ -120,5 +133,6 @@ async function checkBrand(brand) {
     }
     return scrapedBusiness
   }
+  */
 
   module.exports = {checkBusinessData};

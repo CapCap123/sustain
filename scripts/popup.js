@@ -1,4 +1,5 @@
-import {checkBusinessData} from '/../checkdata.js';
+import regeneratorRuntime from 'regenerator-runtime/runtime';
+import {checkBusinessData} from './checkdata.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -6,25 +7,34 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentURL = tabs[0].url;
     var urlArray = currentURL.split('/');
     var name = urlArray[2];
+    let website = await findWebsiteName(name);
 
-    const www = "www."
-    if (name.includes(www) == true) {
-      website = name.replace(www,"")
-    } else {
-    website = name }
+    async function findWebsiteName(name) {
+      try {
+        const www = "www."
+        if (name.includes(www) == true) {
+          website = name.replace(www,"");
+          } else {
+          website = name 
+          }
+      } catch(error) {
+        console.log(error);
+      }
+      return website;
+    }
+    
 
-    var websiteArray = website.split(".")
-    websiteName = websiteArray[0];
+    var websiteArray = await website.split(".")
+    let websiteName = websiteArray[0];
 
     console.log(websiteName);
-    results = await checkBrand(websiteName);
+    let results = await checkBrand(websiteName);
 
-    
     async function checkBrand(websiteName){
       try {
       var brand = {};
     
-      brandname = websiteName
+      let brandname = websiteName
       console.log('check brandname: ' + brandname);
       brand.name = brandname;
       brand.website = websiteName;
