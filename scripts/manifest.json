@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+  
+    "name": "Sustain Report Popup",
+    "description": "Access information on a business impact on environment and ask them for the changes you expect",
+    "version": "1.0",
+
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+
+
+      "background": {
+        "scripts": [
+          "background.js",
+          "firebase.js",
+          "checkdata.js"
+          ],
+        "persistent": false
+      },
+      
+      "permissions": [
+       "activeTab",
+       "identity",
+       "storage"
+       ],
+
+      "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+       },
+
+       "externally_connectable": {
+        "matches": [
+          "https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js",
+          "https://www.gstatic.com/firebasejs/7.14.6/firebase-auth.js",
+          "https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js"
+        ]
+      }
+  }
