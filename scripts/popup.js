@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var name = urlArray[2];
     let website = await findWebsiteName(name);
 
+    var websiteArray = await website.split(".")
+    let websiteName = websiteArray[0];
+
+    console.log(websiteName);
+    let results = await checkBrand(websiteName);
+    let answer = await sendAnswer(await results);
+    console.log(JSON.stringify(answer))
+
+    document.getElementById("postEsgResults").innerHTML = answer;
+
     async function findWebsiteName(name) {
       try {
         const www = "www."
@@ -22,31 +32,52 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       return website;
     }
-    
-
-    var websiteArray = await website.split(".")
-    let websiteName = websiteArray[0];
-
-    console.log(websiteName);
-    let results = await checkBrand(websiteName);
 
     async function checkBrand(websiteName){
       try {
-      var brand = {};
+      let brand = {};
     
       let brandname = websiteName
       console.log('check brandname: ' + brandname);
       brand.name = brandname;
       brand.website = websiteName;
     
-      results = await checkBusinessData(brand)
+      let results = await checkBusinessData(brand)
     
-      return(results)
+      console.log('results: ' + JSON.stringify(results))
+    
+      return results
     
       } catch(error) {
-        console.log(error)
+        console.log(error);
       }
     };
+
+    async function sendAnswer(results) {  
+      try {
+      if(results.hasBusiness_ref == false) {
+        answer =  (
+          "We did not find official information about "+ results.name
+          ) 
+      } else {
+        if (results.hasEsg == false) {
+          answer = (
+          "This website belongs to "+ results.business_name + 
+          "<p>" + results.business_name + " did not make their information public"
+          )
+        } else {
+          answer = (
+          "This website belongs to " + results.business_name +
+          ":<p>- ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
+          ")<p>- Environmental risk: "+ results.yahoo_envrisk
+          )
+        }
+      }
+    } catch(error) {
+      console.log(error)
+    }
+    return answer
+    }
   });
 
 

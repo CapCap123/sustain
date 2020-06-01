@@ -1,7 +1,12 @@
-import { saveBrand } from './firebase.js';
+//const admin = require('firebase-admin');
+import {yahooScraper, yahooCodeScraper} from '../app/scraper.js';
+import { saveBrand, saveBusiness } from ('./firebase');
+
 import db from './background.js';
 
-// functions checking in database
+
+
+// functions checking in database and requesting scraper as needed
 async function checkBrand(brand) {
     try {
     let websiteName = brand.website
@@ -55,12 +60,12 @@ async function checkBrand(brand) {
   
   async function checkBusinessData(brand) {
     try {   
-      var matchedBrand = await checkBrand(brand)
+      var matchedBrand = await checkBusinessRef(brand)
       var scrapedBusiness = await matchedBrand
       var yahooCode = await matchedBrand.business_ref
       console.log('yahoo code is' + yahooCode)
-      saveBrandData(await matchedBrand);
-      if (!yahooCode || yahooCode.length < 1) {
+      //saveBrandData(await matchedBrand);
+      if (yahooCode.length < 1) {
         console.log('no business ref found for this brand')
         scrapedBusiness.new_business = false
         scrapedBusiness.hasBusiness_ref = false
@@ -70,7 +75,9 @@ async function checkBrand(brand) {
         let businessQuery = db.collection('businesses').where('yahoo_uid', '==',  yahooCode)
         let businessSnapshot = await businessQuery.get()          
         if (businessSnapshot.empty) {
-          console.log('scraper for business needed')
+          console.log('scraper for business launched')
+          scrapedBusiness = await yahooScraper(matchedBrand)
+         // saveBusinessData(await scrapedBusiness)
         } else { businessSnapshot.forEach(doc => {
           scrapedBusiness = doc.data()
           scrapedBusiness.new_business = false;
@@ -87,6 +94,7 @@ async function checkBrand(brand) {
               scrapedBusiness.hasEsg = true
             }
           })
+          //console.log('scraped business' + JSON.stringify(scrapedBusiness))
         }
       }
     } catch(error) {
@@ -96,6 +104,15 @@ async function checkBrand(brand) {
     return scrapedBusiness
   }
 
+  function sendAnswer(scrapedBusiness) {  
+    if (scrapedBusiness.new_business == false) {
+      console.log('no business data to record for: ' +JSON.stringify(scrapedBusiness));  
+    } else {
+      console.log('business to be recorded: ' +JSON.stringify(scrapedBusiness));
+      saveBusiness(scrapedBusiness)
+    }
+    return scrapedBusiness
+  }
   //functions to record in firestore if new brand/business
   function saveBrandData(matchedBusiness)  {
     if (matchedBusiness.new_brand == true) {
@@ -106,4 +123,15 @@ async function checkBrand(brand) {
     }    
     return matchedBusiness
   }
+
+  function saveBusinessData(scrapedBusiness) {  
+    if (scrapedBusiness.new_business == false) {
+      console.log('no business data to record for: ' +JSON.stringify(scrapedBusiness));  
+    } else {
+      console.log('business to be recorded: ' +JSON.stringify(scrapedBusiness));
+      saveBusiness(scrapedBusiness)
+    }
+    return scrapedBusiness
+  }
+
   module.exports = {checkBusinessData};

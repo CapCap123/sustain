@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sentry/node": "^5.15.5",
     "ajax": "0.0.4",
     "async": "^3.2.0",
     "axios": "^0.19.2",
