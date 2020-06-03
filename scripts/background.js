@@ -14,30 +14,60 @@ firebase.initializeApp(config);
 let db = firebase.firestore();
 console.log('firebase initialized')
 
+chrome.storage.sync.getBytesInUse (null, function (result) {
+  console.log('bytes in use in sync: ' + result);
+  if (result < 0.8 * 102400) {
+    console.log('there is room in sync storage');
+  } else { 
+    chrome.storage.sync.clear(function() {
+      console.log('sync storage cleared');
+    });
+  }
+});
+
+chrome.storage.local.getBytesInUse (null, function (result) {
+  console.log('bytes in use in local: ' + result);
+  if (result < 0.8 * 5242880) {
+    console.log('there is room in local storage');
+  } else { 
+    chrome.storage.local.clear(function() {
+      console.log('local storage cleared');
+    });
+  }
+});
+
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) { 
   if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
-  console.log('event on activated fired')
-  chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
-    var currentTab = tabs[0]
-    var currentURL = currentTab.url;
-    var urlArray = currentURL.split('/');
-    let name = urlArray[2];
-    let website = findWebsiteName(name);
-    var websiteArray = website.split(".")
-    let websiteName = websiteArray[0];
+    console.log('event on activated fired')
+    chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+      var currentTab = tabs[0]
+      var currentURL = currentTab.url;
+      var urlArray = currentURL.split('/');
+      let name = urlArray[2];
+      let website = findWebsiteName(name);
+      var websiteArray = website.split(".")
+      let websiteName = websiteArray[0];
 
-    let results = await checkBrandName(websiteName);
-    console.log('bg results: ' + JSON.stringify(results));
-
-   chrome.storage.sync.set({[websiteName]: results}, function() {
-    console.log("Value of " + websiteName + " is set to " + results);
-  });
-
-    let badgeColor = setBadge(await results);
-    chrome.browserAction.setBadgeText({text: "   "});
-    chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-
-  });
+      chrome.storage.sync.get(websiteName, async function(result) {
+        var results = result[websiteName];
+        if(typeof results == 'undefined') {
+          results = await checkBrandName(websiteName);
+          console.log('bg results brand check: ' + results);
+          chrome.storage.sync.set({[websiteName]: results}, function() {
+            console.log("Value of " + websiteName + " is set to " + results);
+          });
+          let badgeColor = setBadge(await results);
+          chrome.browserAction.setBadgeText({text: "   "});
+          chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
+        
+        } else {
+          console.log("website already in chrome storage");
+          chrome.browserAction.setBadgeText({text: "   "});
+          let badgeColor = setBadge(await results);
+          chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
+        }
+      });
+    })
   }
 });
 
