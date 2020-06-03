@@ -1,6 +1,6 @@
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {checkBusinessData} from './checkdata.js';
-import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
+//import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
 
 //document.addEventListener('DOMContentLoaded', function() {
   //chrome.webNavigation.onCompleted.addListener(function(details) {
@@ -12,16 +12,15 @@ import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
     //console.log("page load!");
    //}
   chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
-  //chrome.tabs.onUpdated.addListener(async function (tabs) {
 
     var currentTab = tabs[0]
     console.log('current tab: ' + JSON.stringify(currentTab));
     var currentURL = currentTab.url;
     var urlArray = currentURL.split('/');
     var name = urlArray[2];
-    let website = await findWebsiteName(name);
+    let website = findWebsiteName(name);
 
-    var websiteArray = await website.split(".")
+    var websiteArray = website.split(".")
     let websiteName = websiteArray[0];
 
     console.log(websiteName);
@@ -59,17 +58,13 @@ import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
       return badgeColor
     }
 
-    async function findWebsiteName(name) {
-      try {
+    function findWebsiteName(name) {
         const www = "www."
         if (name.includes(www) == true) {
           website = name.replace(www,"");
           } else {
           website = name 
           }
-      } catch(error) {
-        console.log(error);
-      }
       return website;
     }
 
@@ -119,13 +114,14 @@ import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
     return answer
     }
   });
-/*});
 
 
+/*
   var detailsButton = document.getElementById('details');
   detailsButton.addEventListener('click', function() {
     chrome.tabs.getSelected(null, function(tab) {      
       alert('thats not ready yet');
       });
     }, false);
-  }, false);*/
+  }, false);
+  */

@@ -58,7 +58,7 @@ async function checkBrand(brand) {
       var matchedBrand = await checkBrand(brand)
       var scrapedBusiness = await matchedBrand
       var yahooCode = await matchedBrand.business_ref
-      console.log('yahoo code is' + yahooCode)
+      console.log('yahoo code is ' + yahooCode)
       saveBrandData(await matchedBrand);
       if (!yahooCode || yahooCode.length < 1) {
         console.log('no business ref found for this brand')

@@ -1,15 +1,13 @@
 
 import * as firebase from 'firebase/app'
 import {firestore} from 'firebase/firestore'
-//import {firestore} from ''
-//import * as admin from 'firebase-admin'
-//import * as functions from 'firebase-functions'
-
+import {checkBusinessData} from './checkdata.js';
+import regeneratorRuntime from 'regenerator-runtime/runtime';
+//import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
+//import { request } from 'express';
 
 var config = {
-    apiKey: 'AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo',
-    authDomain: 'sustainability-4ae3a.firebaseapp.com',
-    projectId: 'sustainability-4ae3a'
+
   };
   
   firebase.initializeApp(config);
@@ -20,25 +18,24 @@ var config = {
 
   module.exports = db;
 
-/*
-  var refreshToken; // Get refresh token from OAuth2 flow
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    var currentTab = tabs[0];
+    if (!currentTab) {
+      console.log("current tab undefined")
+    } else {
+      console.log('message sent');
+      //chrome.tabs.executeScript(tabs[0].id, {file: "esg.js"}, function() {
+        chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello", tab: currentTab}, async function(response) {
+          let answer = await response;
+          if(answer){
+            alert(answer);
+            console.log(answer);
+          } else {
+            console.log('response did not come')
+          }
+        });
+      //}); 
+    }
+  })
 
-  admin.initializeApp({
-    credential: admin.credential.refreshToken(refreshToken),
-    databaseURL: 'https://sustainability-4ae3a.firebaseio.com'
-  });
 
-  let serviceAccount = require('../keys/servicekey.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-let firestore = admin.firestore();
-
-  */
-
-
-
-
-  
