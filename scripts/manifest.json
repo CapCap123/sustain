@@ -5,8 +5,7 @@
     "description": "Access information on a business impact on environment and ask them for the changes you expect",
     "version": "1.0",
 
-    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
-
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com ; object-src 'self'",
 
       "background": {
         "scripts": [
@@ -31,7 +30,9 @@
         "matches": [
           "https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js",
           "https://www.gstatic.com/firebasejs/7.14.6/firebase-auth.js",
-          "https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js"
+          "https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js",
+          "https://code.jquery.com/jquery-3.5.1.slim.min.js",
+          "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
         ]
       }
   }

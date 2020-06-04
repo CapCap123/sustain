@@ -11,7 +11,7 @@ import regeneratorRuntime from 'regenerator-runtime/runtime';
     let websiteName = websiteArray[0];
 
     chrome.storage.sync.get(websiteName, function(result) {
-      console.log( "amazon result retrieved from storage in popup is " + result[websiteName]);
+      console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
       let answer = sendAnswer(result[websiteName]); 
       document.getElementById("postEsgResults").innerHTML = answer;
     })
@@ -33,20 +33,23 @@ function sendAnswer(results) {
     let answer =  (
       "We did not find official information about "+ results.name
       ); 
+      detailsButton.style.display = "none"
       return answer
   } else {
     if (results.hasEsg == false) {
       let answer = (
       "This website belongs to "+ results.business_name + 
-      "<p>" + results.business_name + " did not make their information public"
+      "<br>" + results.business_name + " did not make their information public"
       );
+      detailsButton.style.display = "block"
       return answer
     } else if (results.hasEsg == true) {
       let answer = (
       "This website belongs to " + results.business_name +
-      ":<p>- ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
-      ")<p>- Environmental risk: "+ results.yahoo_envrisk
+      ":<br>\u2022 ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
+      ")<br>\u2022 Environmental risk: "+ results.yahoo_envrisk
       );
+      detailsButton.style.display = "block"
       return answer
     }
   }

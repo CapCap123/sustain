@@ -1,17 +1,39 @@
-<html>
+<!doctype html>
+<html lang="en">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="./popup.scss">
   <head>
     <title>Sustain</title>
-    
   </head>
 
-  <body style="width:400px;">
-    <script defer src="/../scripts/popup.js"></script>
-    <div>
-    <h1>Sustain</h1>
-    <p id="postEsgResults"></p>
-    <button id="details">See more details</button>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <body style="width:350px;height:max-content">
+  <script defer src="/../scripts/popup.js"></script>
 
-  </div>
+      <div class="jumbotron" id="report">
+        <p class="lead" id="title">Report</p>
+        <p id="postEsgResults"></p>
+        <button class="btn btn-link btn-sm" id="details">See details</button>
+      </div>
+        <div class="jumbotron" id="trophies">
+          <p class="lead" id="title">Trophies</p>
+          <p id="postEsgResults">Black owned business</p>
+          <div class="btn-group-vertical">
+            <button type="btn-xs" class="btn btn-success">Upvote</button>
+            <button type="btn-xs" class="btn btn-warning">Downvote</button>
+          </div>
+        </div>
+        <div class="jumbotron" id="demand">
+          <p class="lead" id="title">Demand</p>
+          <p id="postEsgResults">Publish ESG and environmental risk scores</p>
+          <div class="btn-group-vertical">
+            <button type="btn-xs" class="btn btn-success">Upvote</button>
+            <button type="btn-xs" class="btn btn-warning">Downvote</button>
+          </div>
+        </div>
 </body>
 </html>
 

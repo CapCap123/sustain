@@ -1,5 +1,6 @@
 
 import * as firebase from 'firebase/app'
+import * as bootstrap from 'bootstrap'
 import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 //import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
@@ -223,6 +224,3 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         return addBrand;
       }
     }
-
-/*
-  */
