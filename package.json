@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@popperjs/core": "^2.4.0",
     "@sentry/node": "^5.15.5",
     "ajax": "0.0.4",
     "async": "^3.2.0",
+    "autoprefixer": "^9.8.0",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
     "cheerio": "^1.0.0-rc.3",
@@ -27,11 +29,16 @@
     "parcel-plugin-web-extension": "^1.6.1",
     "path": "^0.12.7",
     "popper.js": "^1.16.1",
+    "postcss-cli": "^7.1.1",
     "regenerator-runtime": "^0.13.5",
     "request": "^2.88.2",
+    "terser": "^4.7.0",
     "yarn": "^1.22.4"
   },
   "prodDependencies": {
     "parcel-plugin-web-extension": "^1.6.1"
+  },
+  "devDependencies": {
+    "sass": "^1.26.7"
   }
 }
