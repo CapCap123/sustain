@@ -17,45 +17,54 @@ console.log('firebase initialized')
 
 var toReview = {
   "amazon.com": 1,
-  "mail.google": 1
+  "mail.google": 1,
+  "youtube.com": 1
 };
 
-chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) { 
-  if (changeInfo.status == 'complete' && tab.status == 'complete' && tab.url != undefined) {
-    console.log('event on activated fired')
+chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) { 
+  updateBadge();
+  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo,tabs) {
+    if (changeInfo.status == 'complete') {
+      updateBadge();
+    }
+  });
+
+  async function updateBadge() {
     chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
       const currentTab = tabs[0]
-      const currentURL = currentTab.url;
-      const websiteName = findWebsiteName(currentURL);
-      var brand = await checkBrandName(websiteName);
+      if (currentTab.status == 'complete' && currentTab.url != undefined) {
+        const currentURL = currentTab.url;
+        const websiteName = findWebsiteName(currentURL);
+        var brand = await checkBrandName(websiteName);
 
-      // retrieve esg data
-      chrome.storage.sync.get(websiteName, async function(result) {
-        var results = result[websiteName];
-        if(typeof results == 'undefined' || toReview[websiteName] == 1) {
-          if (toReview[websiteName]) {
-            toReview[websiteName] = 2;
+        // retrieve esg data
+        chrome.storage.sync.get(websiteName, async function(result) {
+          var results = result[websiteName];
+          if(typeof results == 'undefined' || toReview[websiteName] == 1) {
+            if (toReview[websiteName]) {
+              toReview[websiteName] = 2;
+            }
+            results = await checkBusinessData(brand);
+            console.log('bg results brand check: ' + results);
+            chrome.storage.sync.set({[websiteName]: results}, function(results) {
+              console.log("Value of " + websiteName + " is set to " + results);
+            });
+            let badgeColor = setBadge(await results);
+            chrome.browserAction.setBadgeText({text: "   "});
+            chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
+          } else {
+            console.log("website already in chrome storage");
+            chrome.browserAction.setBadgeText({text: "   "});
+            let badgeColor = setBadge(await results);
+            chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
           }
-          results = await checkBusinessData(brand);
-          console.log('bg results brand check: ' + results);
-          chrome.storage.sync.set({[websiteName]: results}, function(results) {
-            console.log("Value of " + websiteName + " is set to " + results);
-          });
-          let badgeColor = setBadge(await results);
-          chrome.browserAction.setBadgeText({text: "   "});
-          chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-        } else {
-          console.log("website already in chrome storage");
-          chrome.browserAction.setBadgeText({text: "   "});
-          let badgeColor = setBadge(await results);
-          chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-        }
-      });
+        });
 
       // retrieve content data
       //trophey = await checkTrophies(brand) 
-
+      }
     })
+    return true
   }
 });
 
@@ -63,10 +72,12 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 function findWebsiteName(currentURL) {
   const urlArray = currentURL.split('/');
   const name = urlArray[2];
+
   var website = name;
   if (name.includes("www.") == true) {
     website = name.replace("www.","");
   }
+
   const websiteFullArray = website.split(".")
   const websiteArray = [websiteFullArray[0], websiteFullArray[1]]
   const websiteName = websiteArray.join('.');
