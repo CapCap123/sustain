@@ -7,8 +7,26 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   chrome.storage.sync.get(websiteName, function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
-    let answer = sendAnswer(result[websiteName]); 
+    let results = result[websiteName];
+    console.log("results are " + JSON.stringify(results));
+    let answer = sendAnswer(results); 
     document.getElementById("postEsgResults").innerHTML = answer;
+
+    if(results.hasBusiness_ref == true)  {
+      console.log('link should be clickable')
+      const urlBusiness = "https://finance.yahoo.com/quote/";
+      let yahooCode = results.yahoo_uid;
+      const urlProfiledata = "/profile";
+      let link = urlBusiness + yahooCode + urlProfiledata;
+      console.log(link);
+
+      var detailsButton = document.getElementById('detailsButton');
+      detailsButton.addEventListener('click', function(link) {
+        chrome.tabs.create({ url: JSON.stringify(link), active: false }, function (tab){
+          console.log('clicked')
+        })
+      });
+    }
   })
 });
 
@@ -52,10 +70,3 @@ if(results.hasBusiness_ref == false) {
   }
 }
 }
-
-var detailsButton = document.getElementById('details');
-detailsButton.addEventListener('click', function() {
-  chrome.tabs.getSelected(null, function(tab) {      
-    alert('thats not ready yet');
-    });
-  }, false);

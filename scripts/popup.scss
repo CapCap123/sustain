@@ -1,22 +1,67 @@
 // Your variable overrides
-$body-bg: #344;
-$body-color: #344;
-body{padding:.5rem;}
+//$body-bg:  #344;
+//$body-color: #344;
 
+.button{
+    font-size: 0.75rem;
+    border-style: none;
+    border-radius: 3px;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+  .btn-upvote {
+    font-size: 0.75rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color:greenyellow;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
 
-.mt-0 {
-    margin-top: 0 !important;
-}
-.mb-0 {
-    margin-bottom: 0 !important;
-}
+  .btn-downvote {
+    font-size: 0.75rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color:orange;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
 
-.pt-0 {
-    margin-top: 0 !important;
-}
-.pb-0 {
-    margin-bottom: 0 !important;
-}
+  .panel {
+    background-color: rgb(245, 245, 245);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  .panelTrophies {
+    background-color: rgb(227, 250, 231);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  .panelDemand {
+    background-color: rgb(219, 241, 255);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  h1, .h1 {
+    font-size: 1rem;
+  }
+
+  .panel-body{
+    font-size: 0.75rem;
+    padding: 3px;
+  }
 
 // Bootstrap and its default variables
 @import "../node_modules/bootstrap/scss/bootstrap";
