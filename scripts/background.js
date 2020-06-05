@@ -14,11 +14,9 @@ var config = {
 firebase.initializeApp(config);
 let db = firebase.firestore();
 console.log('firebase initialized')
+module.exports = { db };
 
 var toReview = {
-  "amazon.com": 1,
-  "mail.google": 1,
-  "youtube.com": 1
 };
 
 chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) { 
@@ -40,11 +38,11 @@ chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) {
         // retrieve esg data
         chrome.storage.sync.get(websiteName, async function(result) {
           var results = result[websiteName];
-          if(typeof results == 'undefined' || toReview[websiteName] == 1) {
+          if(typeof results == 'undefined' || !toReview[websiteName]) {
             if (toReview[websiteName]) {
               toReview[websiteName] = 2;
             }
-            results = await checkBusinessData(brand);
+            const results = await checkBusinessData(brand);
             console.log('bg results brand check: ' + results);
             chrome.storage.sync.set({[websiteName]: results}, function(results) {
               console.log("Value of " + websiteName + " is set to " + results);
@@ -52,16 +50,13 @@ chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) {
             let badgeColor = setBadge(await results);
             chrome.browserAction.setBadgeText({text: "   "});
             chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-          } else {
+            } else { 
             console.log("website already in chrome storage");
             chrome.browserAction.setBadgeText({text: "   "});
             let badgeColor = setBadge(await results);
             chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-          }
+            } 
         });
-
-      // retrieve content data
-      //trophey = await checkTrophies(brand) 
       }
     })
     return true
@@ -127,6 +122,7 @@ async function checkBusinessData(brand) {
           finalBusiness.new_business = false;
           finalBusiness.business_ref = matchedBusiness.yahoo_uid;
           finalBusiness.brand_name = matchedBusiness.name;
+          finalBusiness.docId = matchedBusiness.docId;
           finalBusiness.hasBusiness_ref = true;
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
@@ -158,6 +154,9 @@ async function checkBrand(brand) {
       querySnapshot.forEach(doc => { //if brand exists
         const businessRef = doc.data().business_ref
         const businessName = doc.data().business_name
+        const brandDocId = doc.id;
+        brand.docId = brandDocId;
+        console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref')
           brand.hasEsg = false;
