@@ -2,6 +2,10 @@
 //$body-bg:  #344;
 //$body-color: #344;
 
+h1, .h1 {
+  font-size: 1rem;
+}
+
 .button{
     font-size: 0.75rem;
     border-style: none;
@@ -52,10 +56,6 @@
     margin: 5px;
     border-radius: 3px;
     padding: 10px;
-  }
-
-  h1, .h1 {
-    font-size: 1rem;
   }
 
   .panel-body{
