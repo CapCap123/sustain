@@ -6,6 +6,45 @@ import regeneratorRuntime from 'regenerator-runtime/runtime';
 //import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
 //import { request } from 'express';
 
+// callback = function (error, httpStatus, responseText);
+function authenticatedXhr(method, url, callback) {
+  var retry = true;
+  function getTokenAndXhr() {
+    chrome.identity.getAuthToken({interactive: true}, function (access_token) {
+      if (chrome.runtime.lastError) { callback(chrome.runtime.lastError);
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open(method, url);
+      xhr.setRequestHeader('Authorization','Bearer ' + access_token);
+
+      xhr.onload = function () {
+        if (this.status === 401 && retry) {
+          retry = false;
+          chrome.identity.removeCachedAuthToken({ 'token': access_token }, getTokenAndXhr);
+          return;
+        }
+
+        callback(null, this.status, this.responseText);
+      }
+    });
+  }
+}
+
+chrome.identity.getAuthToken({interactive: true}, function(token) {
+  if (chrome.runtime.lastError) {
+      alert(chrome.runtime.lastError.message);
+      return;
+  }
+  var x = new XMLHttpRequest();
+  x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
+  x.onload = function() {
+      alert(x.response);
+  };
+  x.send();
+});
+
 var config = {
   apiKey: '',
   authDomain: 'sustainability-4ae3a.firebaseapp.com',

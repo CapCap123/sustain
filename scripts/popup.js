@@ -1,10 +1,26 @@
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {db} from './background.js';
 
+const colors = {
+  "requested": "#afafaf"
+};
+
+const trophies ={
+  "circular": "Circular economy",
+  "local": "Local products",
+  "packaging": "Eco-friendly packaging",
+  "supply-chain": "Transparent supply chain",
+  "vegan": "great vegan options"
+};
+
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   const detailsButton = document.getElementById('detailsButton');
-  const demandResult = document.getElementById('postDemandResults');
+
   const demandPanel = document.getElementById('demands');
+  demandPanel.style.display = "none";
+  const demandResult = document.getElementById('postDemandResults')
+ 
+  const requestButton1 = document.getElementById("requestButton1");
 
   var currentTab = tabs[0]
   var currentURL = currentTab.url;
@@ -32,6 +48,9 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       });
     }
 
+    //display trophies
+
+
     //display question
     const demandsResults = await publishContent(await results);
     console.log("ordered results are" + JSON.stringify(demandsResults));
@@ -39,7 +58,14 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     if(displayedQuestion) {
       console.log('demand should be displayed');
       demandPanel.style.display = "block";
+      requestButton1.innerHTML = "request";
       demandResult.innerHTML = displayedQuestion.question;
+
+      requestButton1.addEventListener('click', function(tab) {
+        requestButton1.innerHTML = "requested";
+        requestButton1.style.display = "disabled";
+        requestButton1.style.backgroundColor = colors.requested;
+      });
     } else {
       console.log('demand will not be displayed');
       demandPanel.style.display = "none";
