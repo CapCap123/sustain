@@ -19,49 +19,36 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   const demandPanel = document.getElementById('demands');
   demandPanel.style.display = "none";
   const demandResult = document.getElementById('postDemandResults')
+  demandResult.style.display = "none";
  
   const requestButton1 = document.getElementById("requestButton1");
 
   var currentTab = tabs[0]
   var currentURL = currentTab.url;
   let websiteName = findWebsiteName(currentURL);
-
   
-  chrome.storage.sync.get(websiteName, async function(result) {
-    // retrieve brand data
+  chrome.storage.sync.get([websiteName], async function(result) {
+    // display esg
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
-    const results = result[websiteName];
+    let results = result[websiteName];
+    console.log('website name is: ' + JSON.stringify(websiteName));
     console.log("results are " + JSON.stringify(results));
-    const answer = sendAnswer(results); 
 
-    //display esg data
+    let answer = await displayEsg(results);
     document.getElementById("postEsgResults").innerHTML = answer;
-    if(results.hasBusiness_ref == true)  {
-      const urlBusiness = "https://finance.yahoo.com/quote/";
-      const yahooCode = results.yahoo_uid;
-      const urlProfiledata = "/profile";
-      const link = urlBusiness + yahooCode + urlProfiledata;
-
-      detailsButton.addEventListener('click', function(tab) {
-        window.open(link)
-        console.log('clicked')
-      });
-    }
-
-    //display trophies
+    demandResult.style.display = "block";
 
 
     //display question
     const demandsResults = await publishContent(await results);
+    if(demandsResults[0]) {
     console.log("ordered results are" + JSON.stringify(demandsResults));
-    const displayedQuestion = await demandsResults[0];
-    if(displayedQuestion) {
-      console.log('demand should be displayed');
+    const displayedQuestion1 = await demandsResults[0];
       demandPanel.style.display = "block";
-      requestButton1.innerHTML = "request";
-      demandResult.innerHTML = displayedQuestion.question;
-
-      requestButton1.addEventListener('click', function(tab) {
+      demandResult.innerHTML = displayedQuestion1.question;
+      requestButton1.innerHTML = "Request";
+    
+      requestButton1.addEventListener('click', async function(tab) {
         requestButton1.innerHTML = "requested";
         requestButton1.style.display = "disabled";
         requestButton1.style.backgroundColor = colors.requested;
@@ -73,13 +60,44 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   });
 })
 
+function displayEsg(results) {
+  if(results.hasBusiness_ref == false) {
+    let answer =   (
+      "We did not find official information about "+ results.name
+      ); 
+      detailsButton.style.display = "none"
+      document.getElementById("postEsgResults").innerHTML = answer;
+      return answer
+  } else {
+    if (results.hasEsg == false) {
+      let answer = (
+      "This website belongs to "+ results.name + 
+      "<br>" + results.name + " did not make their information public"
+      );
+      detailsButton.style.display = "block"
+      document.getElementById("postEsgResults").innerHTML = answer;
+      return answer
+    } else if (results.hasEsg == true) {
+      let answer =  (
+      "This website belongs to " + results.name +
+      ":<br>\u2022 ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
+      ")<br>\u2022 Environmental risk: "+ results.yahoo_envrisk
+      );
+      displayLink(results.yahoo_uid)
+      detailsButton.style.display = "block"
+      document.getElementById("postEsgResults").innerHTML = answer;
+      return answer
+    }
+  }
+}
+
+
 async function publishContent(results){
   try{
     console.log('results inside of publish content' + JSON.stringify(results));
     const brandDocId = results.docId;
     var demands = await checkDemands(brandDocId);
     console.log("results for demand are : " + JSON.stringify(demands) + " and brand doc id is: " + brandDocId);
-
     const nb = demands.length;
     var demandsResults = [];
 
@@ -132,29 +150,13 @@ function findWebsiteName(currentURL) {
 return websiteName;
 }
 
-function sendAnswer(results) {  
-  if(results.hasBusiness_ref == false) {
-    let answer =  (
-      "We did not find official information about "+ results.name
-      ); 
-      detailsButton.style.display = "none"
-      return answer
-  } else {
-    if (results.hasEsg == false) {
-      let answer = (
-      "This website belongs to "+ results.name + 
-      "<br>" + results.name + " did not make their information public"
-      );
-      detailsButton.style.display = "block"
-      return answer
-    } else if (results.hasEsg == true) {
-      let answer = (
-      "This website belongs to " + results.name +
-      ":<br>\u2022 ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
-      ")<br>\u2022 Environmental risk: "+ results.yahoo_envrisk
-      );
-      detailsButton.style.display = "block"
-      return answer
-    }
-  }
+function displayLink(yahooCode) {
+const urlBusiness = "https://finance.yahoo.com/quote/";
+const urlProfiledata = "/profile";
+const link = urlBusiness + yahooCode + urlProfiledata;
+
+detailsButton.addEventListener('click', function(tab) {
+  window.open(link)
+  console.log('clicked')
+});
 }

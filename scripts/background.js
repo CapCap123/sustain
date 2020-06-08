@@ -7,43 +7,7 @@ import regeneratorRuntime from 'regenerator-runtime/runtime';
 //import { request } from 'express';
 
 // callback = function (error, httpStatus, responseText);
-function authenticatedXhr(method, url, callback) {
-  var retry = true;
-  function getTokenAndXhr() {
-    chrome.identity.getAuthToken({interactive: true}, function (access_token) {
-      if (chrome.runtime.lastError) { callback(chrome.runtime.lastError);
-        return;
-      }
 
-      var xhr = new XMLHttpRequest();
-      xhr.open(method, url);
-      xhr.setRequestHeader('Authorization','Bearer ' + access_token);
-
-      xhr.onload = function () {
-        if (this.status === 401 && retry) {
-          retry = false;
-          chrome.identity.removeCachedAuthToken({ 'token': access_token }, getTokenAndXhr);
-          return;
-        }
-
-        callback(null, this.status, this.responseText);
-      }
-    });
-  }
-}
-
-chrome.identity.getAuthToken({interactive: true}, function(token) {
-  if (chrome.runtime.lastError) {
-      alert(chrome.runtime.lastError.message);
-      return;
-  }
-  var x = new XMLHttpRequest();
-  x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
-  x.onload = function() {
-      alert(x.response);
-  };
-  x.send();
-});
 
 var config = {
   apiKey: '',
@@ -58,49 +22,42 @@ module.exports = { db };
 var toReview = {
 };
 
+
 chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) { 
-  updateBadge();
+  let badgeUpdated = updateBadge();
+  console.log('tab activated');
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo,tabs) {
+    console.log('tab updated');
+    var currentTab = tabs[0];
     if (changeInfo.status == 'complete') {
-      updateBadge();
+      console.log('change info complete')
+      let badgeUpdated = updateBadge();
     }
   });
-
-  async function updateBadge() {
-    chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
-      const currentTab = tabs[0]
-      if (currentTab.status == 'complete' && currentTab.url != undefined) {
-        const currentURL = currentTab.url;
-        const websiteName = findWebsiteName(currentURL);
-        var brand = await checkBrandName(websiteName);
-
-        // retrieve esg data
-        chrome.storage.sync.get(websiteName, async function(result) {
-          var results = result[websiteName];
-          if(typeof results == 'undefined' || !toReview[websiteName]) {
-            if (toReview[websiteName]) {
-              toReview[websiteName] = 2;
-            }
-            const results = await checkBusinessData(brand);
-            console.log('bg results brand check: ' + results);
-            chrome.storage.sync.set({[websiteName]: results}, function(results) {
-              console.log("Value of " + websiteName + " is set to " + results);
-            });
-            let badgeColor = setBadge(await results);
-            chrome.browserAction.setBadgeText({text: "   "});
-            chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-            } else { 
-            console.log("website already in chrome storage");
-            chrome.browserAction.setBadgeText({text: "   "});
-            let badgeColor = setBadge(await results);
-            chrome.browserAction.setBadgeBackgroundColor({color: await badgeColor, tabId: currentTab.id});
-            } 
-        });
-      }
-    })
-    return true
-  }
 });
+
+async function updateBadge() {
+  chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+    const currentTab = tabs[0];
+    console.log('url complete');
+    const currentURL = currentTab.url;
+    const websiteName = findWebsiteName(currentURL);
+
+    var brand = await checkBrandName(websiteName);
+
+    // retrieve esg data
+    const results = await checkBusinessData(brand);
+    console.log('bg results brand check: ' + results);
+    chrome.storage.sync.set({[websiteName]: results}, function() {
+      console.log("Value of " + websiteName + " is set to " + results);
+    });
+
+    let badgeColor = setBadge(await results);
+    chrome.browserAction.setBadgeText({text: "   "});
+    chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+    return true
+  })
+}
 
 // website names
 function findWebsiteName(currentURL) {
@@ -246,7 +203,7 @@ function setBadge(results) {
 // chrome storage
 chrome.storage.sync.getBytesInUse (null, function (result) {
   console.log('bytes in use in sync: ' + result);
-  if (result < 0.8 * 102400) {
+  if (result < 0.000001 * 102400) {
     console.log('there is room in sync storage');
   } else { 
     chrome.storage.sync.clear(function() {
@@ -257,7 +214,7 @@ chrome.storage.sync.getBytesInUse (null, function (result) {
 
 chrome.storage.local.getBytesInUse (null, function (result) {
   console.log('bytes in use in local: ' + result);
-  if (result < 0.8 * 5242880) {
+  if (result < 0.0000000000000001 * 5242880) {
     console.log('there is room in local storage');
   } else { 
     chrome.storage.local.clear(function() {
