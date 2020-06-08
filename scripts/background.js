@@ -3,11 +3,14 @@ import * as firebase from 'firebase/app'
 import * as bootstrap from 'bootstrap'
 import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
+import * as jquery from 'jquery';
+import * as popper from 'popper.js';
+import {auth} from 'firebase/auth'
+//const {login} = require('./chromeSignin.js');
 //import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
 //import { request } from 'express';
 
 // callback = function (error, httpStatus, responseText);
-
 
 var config = {
   apiKey: '',
@@ -22,8 +25,7 @@ module.exports = { db };
 var toReview = {
 };
 
-
-chrome.tabs.onActivated.addListener(function (tabId, changeInfo, tabs) { 
+chrome.tabs.onActivated.addListener(async function (tabId, changeInfo, tabs) { 
   let badgeUpdated = updateBadge();
   console.log('tab activated');
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo,tabs) {
@@ -59,7 +61,7 @@ async function updateBadge() {
   })
 }
 
-// website names
+// function website name
 function findWebsiteName(currentURL) {
   const urlArray = currentURL.split('/');
   const name = urlArray[2];
@@ -76,6 +78,7 @@ function findWebsiteName(currentURL) {
 return websiteName;
 }
 
+// function website name
 async function checkBrandName(websiteName){
   try {
   var brand = {};
