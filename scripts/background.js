@@ -3,13 +3,10 @@ import * as firebase from 'firebase/app'
 import * as bootstrap from 'bootstrap'
 import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
-import * as jquery from 'jquery';
-import * as popper from 'popper.js';
 import {auth} from 'firebase/auth'
-//const {login} = require('./chromeSignin.js');
-//import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
-//import { request } from 'express';
-
+import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
+//import * as jquery from 'jquery';
+//import * as popper from 'popper.js';
 // callback = function (error, httpStatus, responseText);
 
 var config = {
@@ -19,10 +16,37 @@ var config = {
   };
 firebase.initializeApp(config);
 let db = firebase.firestore();
-console.log('firebase initialized')
 module.exports = { db };
 
 var toReview = {
+};
+
+//let authUser = firebase.auth();
+//module.exports = {authUser};
+
+function login() {
+  try {
+    chrome.identity.getAuthToken({interactive: false}, function(token) {
+      if (chrome.runtime.lastError) {
+          alert(chrome.runtime.lastError.message);
+          var status = "login failed";
+      } else {
+      var x = new XMLHttpRequest();
+      x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
+      x.onload = function() {
+          alert(x.response);
+      };
+      x.send();
+      var status = "success";
+      var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+      firebase.auth().signInWithCredential(credential);
+      alert('you logged in with your Google account')
+      }
+    });
+    return status
+  } catch(error) {
+    console.log(error);
+  }
 };
 
 chrome.tabs.onActivated.addListener(async function (tabId, changeInfo, tabs) { 

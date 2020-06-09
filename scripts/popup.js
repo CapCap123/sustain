@@ -1,7 +1,9 @@
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {db} from './background.js';
+import {auth} from 'firebase/auth';
+
+//import { getUserID } from './background.js';
 import * as firebase from 'firebase/app'
-import {auth} from 'firebase/auth'
 
 const colors = {
   "requested": "#afafaf"
@@ -16,11 +18,12 @@ const trophies ={
 };
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-  const detailsButton = document.getElementById('detailsButton');
+  let user = firebase.auth().currentUser; 
 
+  const detailsButton = document.getElementById('detailsButton');
   const demandPanel = document.getElementById('demands');
-  demandPanel.style.display = "none";
   const demandResult = document.getElementById('postDemandResults')
+  demandPanel.style.display = "none";
   demandResult.style.display = "none";
  
   const requestButton1 = document.getElementById("requestButton1");
@@ -30,76 +33,58 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   var currentURL = currentTab.url;
   let websiteName = findWebsiteName(currentURL);
   
-  chrome.storage.sync.get([websiteName], async function(result) {
+  chrome.storage.sync.get(websiteName, async function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
-    let results = result[websiteName];
+    let results = await result[websiteName];
     console.log('website name is: ' + JSON.stringify(websiteName));
     console.log("results are " + JSON.stringify(results));
 
     // display esg
-    if (results) {
-      let answer = displayEsg(results);
-      document.getElementById("postEsgResults").innerHTML = answer;
-      demandResult.style.display = "block";
+    let answer = await displayEsg(results);
+    document.getElementById("postEsgResults").innerHTML = answer;
+    demandResult.style.display = "block";
 
-      //display question
-      const demandsResults = await publishContent(results);
-      if(demandsResults[0]) {
-      console.log("ordered results are" + JSON.stringify(demandsResults));
-      const displayedQuestion1 = demandsResults[0];
-        demandPanel.style.display = "block";
-        demandResult.innerHTML = displayedQuestion1.question;
-        requestButton1.innerHTML = "Request";
-      
-        requestButton1.addEventListener('click', async function(tab) {
-          const loggedIn = login();
-          requestButton1.innerHTML = "requested";
-          requestButton1.style.display = "disabled";
-          requestButton1.style.backgroundColor = colors.requested;
-        });
+    //display question
+
+    firebase.auth().onAuthStateChanged(async function(user) {
+      if (user) {
+        user.providerData.forEach(async function (profile) {
+          let fullid = profile.uid;
+          alert (fullid);
+          const demandsResults = await publishContent(results,fullid);
+          alert('demands resulrs in core' + JSON.stringify(demandsResults));
+
+          if(demandsResults[0]) {
+            console.log("ordered results are" + JSON.stringify(demandsResults));
+            const displayedQuestion1 = demandsResults[0];
+            demandPanel.style.display = "block";
+            demandResult.innerHTML = displayedQuestion1.question;
+            requestButton1.innerHTML = "Request";
+          
+            requestButton1.addEventListener('click', async function(tab) {
+              requestButton1.innerHTML = "requested";
+              requestButton1.style.display = "disabled";
+              requestButton1.style.backgroundColor = colors.requested;
+            });
+          } else {
+            console.log('demand will not be displayed');
+            demandPanel.style.display = "none";
+          }
+        })
       } else {
-        console.log('demand will not be displayed');
-        demandPanel.style.display = "none";
-      }
-    } else {
-        alert('oops, try relading the tab')
     }
+    })
   });
 })
 
-async function login() {
-  chrome.identity.getAuthToken({interactive: true}, function(token) {
-  if (chrome.runtime.lastError) {
-      alert(chrome.runtime.lastError.message);
-      var status = "failed";
-      console.log(status);
-      return status;
-  }
-  var x = new XMLHttpRequest();
-  x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
-  x.onload = function() {
-      alert(x.response);
-      status = "success";
-      console.log(status);
-  };
-  x.send();
-
-  var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
-  firebase.auth().signInWithCredential(credential);
-  return status;
-});
-return true
-}
-
 // demand functions
-async function publishContent(results){
+async function publishContent(results,fullid){
   try{
-    console.log('results inside of publish content' + JSON.stringify(results));
     const brandDocId = results.docId;
-    var demands = await checkDemands(brandDocId);
-    console.log("results for demand are : " + JSON.stringify(demands) + " and brand doc id is: " + brandDocId);
+    var demands = await checkQueries(brandDocId,fullid);
     const nb = demands.length;
     var demandsResults = [];
+    console.log('demands in publish' + JSON.stringify(demands));
 
     for (let i = 0; i < nb; i ++) {
       const question = await demands[i];
@@ -119,17 +104,48 @@ async function publishContent(results){
   }
 };
 
+async function checkQueries(brandDocId, fullid) {
+  try {
+    var demands2 = [];
+    let demands = await checkDemands(brandDocId);
+    console.log('demands in check queries' + JSON.stringify(demands));
+    for (let i = 0; i < demands.length; i ++) {
+      let demand2 = demands[i];
+      let question = demand2.questionId;
+      let userQuery = db.collection('brands').doc(brandDocId).collection('questions').doc(question).collection('demands');
+      let demandSnapshot = await userQuery.get();
+      if (!demandSnapshot.empty) {
+        demandSnapshot.forEach(doc => {
+          if (doc.id == fullid) {
+          demand2.requested = doc.data().upvote;
+          demands2.push(demand2);
+          } else {}
+        })
+      } else {
+        demands2.push(demand2);
+      }
+    }
+  return demands2
+  } catch(error) {
+    console.log(error);
+  }
+}
+
 async function checkDemands(brandDocId){
   try{
     var demands = [];
     let demandQuery = db.collection('brands').doc(brandDocId).collection('questions')
     let querySnapshot = await demandQuery.get();
     if (!querySnapshot.empty) {
+      console.log('query in checkdemands is not empty');
       querySnapshot.forEach(doc => { //if brand exists
         const demand = {"name": doc.data().name , "question": doc.data().question, "upvote": doc.data().upvote, "downvote": doc.data().downvote, "questionId": doc.id};
         demands.push(demand);
       })
+    } else {
+      console.log('query in checkdemands is empty');
     }
+    console.log('demands in check demands' + JSON.stringify(demands));
   return demands
   } catch(error) {
     console.log(error);
@@ -179,7 +195,7 @@ function displayLink(yahooCode) {
   });
   }
 
-// functions url
+// functions others
 function findWebsiteName(currentURL) {
   const urlArray = currentURL.split('/');
   const name = urlArray[2];
