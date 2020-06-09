@@ -22,11 +22,17 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   const detailsButton = document.getElementById('detailsButton');
   const demandPanel = document.getElementById('demands');
-  const demandResult = document.getElementById('postDemandResults')
+  const demandPanel1 = document.getElementById('demands1');
+  const demandPanel2 = document.getElementById('demands2');
+  const demandResult = document.getElementById('postDemandResults1')
+  const demandResult2 = document.getElementById('postDemandResults2')
+  const demandOption1 = document.getElementById('option1')
+
   demandPanel.style.display = "none";
   demandResult.style.display = "none";
  
   const requestButton1 = document.getElementById("requestButton1");
+  const requestButton2 = document.getElementById("requestButton2");
 
   // identify website
   var currentTab = tabs[0]
@@ -55,7 +61,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
           if(demandsResults[0]) {
             console.log("ordered results are" + JSON.stringify(demandsResults));
-            const displayedQuestion1 = demandsResults[0];
+            let displayedQuestion1 = demandsResults[0];
             demandPanel.style.display = "block";
             demandResult.innerHTML = displayedQuestion1.question;
 
@@ -83,9 +89,43 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             });
             }
 
+            if(demandsResults[1]) {
+              let displayedQuestion1 = demandsResults[1];
+              demandResult2.innerHTML = displayedQuestion1.question;
+              if (displayedQuestion1.requested == 1) {
+                requestButton2.innerHTML = "Requested";
+                requestButton2.disabled = true;
+                requestButton2.style.backgroundColor = colors.requested;
+              } else {
+              requestButton2.innerHTML = "Request";
+              requestButton2.addEventListener('click', async function(tab) {
+                requestButton2.innerHTML = "Requested";
+                requestButton2.disabled = true;
+                requestButton2.style.backgroundColor = colors.requested;
+                let brandDocId = results.docId;
+                let questionId = displayedQuestion1.questionId;
+                let currentUpvotes = displayedQuestion1.upvote + 1;
+                let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId).collection('demands').doc(fullid);
+                demandRef.set({
+                  upvote: 1 
+                })
+                let upvoteRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId);
+                var setWithMerge = upvoteRef.set({
+                  upvote: currentUpvotes
+                }, { merge: true });
+              });
+              }
+
+              if (demandsResults[2]) {
+                demandOption1.innerHTML = demandsResults[2].question;
+              }
+            } else {
+              console.log('no second question for this brand');
+              demandPanel2.style.display = "none";
+            }
           } else {
             console.log('demand will not be displayed');
-            demandPanel.style.display = "none";
+            demandPanel2.style.display = "none";
           }
         })
       } else {
@@ -190,6 +230,7 @@ function displayEsg(results) {
       "This website belongs to "+ results.name + 
       "<br>" + results.name + " did not make their information public"
       );
+      displayProfileLink(results.yahoo_uid)
       detailsButton.style.display = "block"
       document.getElementById("postEsgResults").innerHTML = answer;
       return answer
@@ -199,7 +240,7 @@ function displayEsg(results) {
       ":<br>\u2022 ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
       ")<br>\u2022 Environmental risk: "+ results.yahoo_envrisk
       );
-      displayLink(results.yahoo_uid)
+      displayEsgLink(results.yahoo_uid)
       detailsButton.style.display = "block"
       document.getElementById("postEsgResults").innerHTML = answer;
       return answer
@@ -207,7 +248,7 @@ function displayEsg(results) {
   }
 }
 
-function displayLink(yahooCode) {
+function displayProfileLink(yahooCode) {
   const urlBusiness = "https://finance.yahoo.com/quote/";
   const urlProfiledata = "/profile";
   const link = urlBusiness + yahooCode + urlProfiledata;
@@ -217,6 +258,17 @@ function displayLink(yahooCode) {
     console.log('clicked')
   });
   }
+
+  function displayEsgLink(yahooCode) {
+    const urlBusiness = "https://finance.yahoo.com/quote/";
+    const urlEsgdata = "/sustainability";
+    const link = urlBusiness + yahooCode + urlEsgdata;
+    
+    detailsButton.addEventListener('click', function(tab) {
+      window.open(link)
+      console.log('clicked')
+    });
+    }
 
 // functions others
 function findWebsiteName(currentURL) {

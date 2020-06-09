@@ -20,25 +20,44 @@
   <div class = "container">
     <div class="panel-group" id="popup">
       <div class="panel" id="report">
-        <h1 id="title" data-toggle="tooltip" title="Hooray!" data-placement="right">Environment, Social and Governance risks</h1>
+        <h1 id="title" data-toggle="tooltip" title="Hooray!" data-placement="right">Environment, Social and Governance (ESG) risks</h1>
         <div class="panel-body" id="postEsgResults"></div>
         <button class="btn btn-link btn-sm" id="detailsButton">See details</button>
       </div>
-      <div class="panelTrophies" id="trophies">
-        <h1 id="title">Trophies</h1>
-        <div class="panel-body" id="postTrophiesResults">Vegetarian restaurant</div>
-        <div class="btn-group">
-          <button type="button" class="btn-upvote"> Upvote </button>
-          <button type="button" class="btn-downvote">Downvote</button>
-        </div>
-      </div>
       <div class="panelDemand" id="demands">
         <h1 id="title">Demands</h1>
-        <div class="panel-body" id="postDemandResults"></div>
-        <div class="btn-group">
+        <div class="panelDemand2" id="demands1">
+          <div class="panel-body" id="postDemandResults1"></div>
           <button type="button" class="btn-request" id="requestButton1"></button>
         </div>
+        <div class="panelDemand2" id="demands2">
+        <div class="panel-body" id="postDemandResults2"></div>
+          <button type="button" class="btn-request" id="requestButton2"></button>
       </div>
+      <div class="panelDemand2" id="customDemand">
+        <div class="panel-body" id="postDemandResults3">Something else?</div>
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dropdown
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <button class="dropdown-item" id="option1" type="button">Action</button>
+            <button class="dropdown-item" id="option2" type="button">Another action</button>
+            <button class="dropdown-item" id="option3" type="button">Something else here</button>
+            <button class="dropdown-item" id="lastOption" type="button">Create my own demand</button>
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="panelTrophies" id="trophies">
+        <h1 id="title">Trophies</h1>
+        <div class="panelTrophies2" id="trophies1">
+          <div class="panel-body" id="postTrophiesResults">Vegetarian restaurant</div>
+          <div class="btn-group">
+            <button type="button" class="btn-upvote"> Upvote </button>
+            <button type="button" class="btn-downvote">Downvote</button>
+          </div>
+        </div>
   </div>
 </div>
 </body>
