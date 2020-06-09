@@ -36,6 +36,7 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   chrome.storage.sync.get(websiteName, async function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
     let results = await result[websiteName];
+    if(results) {
     console.log('website name is: ' + JSON.stringify(websiteName));
     console.log("results are " + JSON.stringify(results));
 
@@ -45,27 +46,43 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
     demandResult.style.display = "block";
 
     //display question
-
     firebase.auth().onAuthStateChanged(async function(user) {
       if (user) {
         user.providerData.forEach(async function (profile) {
           let fullid = profile.uid;
-          alert (fullid);
           const demandsResults = await publishContent(results,fullid);
-          alert('demands resulrs in core' + JSON.stringify(demandsResults));
+          alert('demands results in core' + JSON.stringify(demandsResults));
 
           if(demandsResults[0]) {
             console.log("ordered results are" + JSON.stringify(demandsResults));
             const displayedQuestion1 = demandsResults[0];
             demandPanel.style.display = "block";
             demandResult.innerHTML = displayedQuestion1.question;
-            requestButton1.innerHTML = "Request";
-          
-            requestButton1.addEventListener('click', async function(tab) {
-              requestButton1.innerHTML = "requested";
-              requestButton1.style.display = "disabled";
+
+            if (displayedQuestion1.requested == 1) {
+              requestButton1.innerHTML = "Requested";
+              requestButton1.disabled = true;
               requestButton1.style.backgroundColor = colors.requested;
+            } else {
+            requestButton1.innerHTML = "Request";
+            requestButton1.addEventListener('click', async function(tab) {
+              requestButton1.innerHTML = "Requested";
+              requestButton1.disabled = true;
+              requestButton1.style.backgroundColor = colors.requested;
+              let brandDocId = results.docId;
+              let questionId = displayedQuestion1.questionId;
+              let currentUpvotes = displayedQuestion1.upvote + 1;
+              let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId).collection('demands').doc(fullid);
+              demandRef.set({
+                upvote: 1 
+              })
+              let upvoteRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId);
+              var setWithMerge = upvoteRef.set({
+                upvote: currentUpvotes
+            }, { merge: true });
             });
+            }
+
           } else {
             console.log('demand will not be displayed');
             demandPanel.style.display = "none";
@@ -74,7 +91,11 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
       } else {
     }
     })
+  } else {
+    alert ('oops, try again later');
+  }
   });
+
 })
 
 // demand functions
@@ -112,20 +133,22 @@ async function checkQueries(brandDocId, fullid) {
     for (let i = 0; i < demands.length; i ++) {
       let demand2 = demands[i];
       let question = demand2.questionId;
-      let userQuery = db.collection('brands').doc(brandDocId).collection('questions').doc(question).collection('demands');
-      let demandSnapshot = await userQuery.get();
-      if (!demandSnapshot.empty) {
-        demandSnapshot.forEach(doc => {
-          if (doc.id == fullid) {
-          demand2.requested = doc.data().upvote;
-          demands2.push(demand2);
-          } else {}
-        })
+      let userQuery = db.collection('brands').doc(brandDocId).collection('questions').doc(question).collection('demands').doc(fullid);
+      let demandQuery = await userQuery.get()
+      if (demandQuery.exists) {
+        console.log('demands have been recorded by this user in check queries');
+        let demand3 = demand2;
+        demand3.requested = 1;
+        demands2.push(demand3);
+        console.log(demand3);
       } else {
+        console.log('no demand recorded by this user in checl queries');
         demands2.push(demand2);
+        console.log(demand2);
       }
     }
-  return demands2
+    console.log(demands2);
+    return demands2
   } catch(error) {
     console.log(error);
   }
