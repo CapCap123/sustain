@@ -40,6 +40,16 @@
     margin: 3px;
   }
 
+  .btn-request {
+    font-size: 0.8rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color: dodgerblue;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+
   .panel {
     background-color: rgb(245, 245, 245);
     color: #344;
@@ -78,6 +88,27 @@
     margin: 2px;
     border-radius: 0px;
     padding: 2px;
+  }
+
+  .panelDropdown {
+    background-color: rgb(219, 241, 255);
+    color: #344;
+    margin: 2px;
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .dropdown-item{
+    font-size: 0.8rem;
+    display: none;
+  }
+
+  .form-control-file{
+    font-size: 0.8rem;
+  }
+
+  .text{
+    font-size: 0.8rem;
   }
 
   .panel-body{

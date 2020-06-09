@@ -1,6 +1,8 @@
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {db} from './background.js';
 import {auth} from 'firebase/auth';
+import $ from 'jquery';
+
 
 //import { getUserID } from './background.js';
 import * as firebase from 'firebase/app'
@@ -22,126 +24,206 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   const detailsButton = document.getElementById('detailsButton');
   const demandPanel = document.getElementById('demands');
-  const demandPanel1 = document.getElementById('demands1');
-  const demandPanel2 = document.getElementById('demands2');
-  const demandResult = document.getElementById('postDemandResults1')
-  const demandResult2 = document.getElementById('postDemandResults2')
-  const demandOption1 = document.getElementById('option1')
-
   demandPanel.style.display = "none";
-  demandResult.style.display = "none";
- 
+
+  const demandPanel1 = document.getElementById('demands1');
+  const demandResult1 = document.getElementById('postDemandResults1')
   const requestButton1 = document.getElementById("requestButton1");
+  const demandPanel2 = document.getElementById('demands2');
+  const demandResult2 = document.getElementById('postDemandResults2')
   const requestButton2 = document.getElementById("requestButton2");
+  const demandPanel3 = document.getElementById('demands3');
+  const demandResult3 = document.getElementById('postDemandResults3');
+  const requestButton3 = document.getElementById("requestButton3");
+
+  const demandPanelDropdown = document.getElementById('demandsDropdown');
+  const dropdownItems = document.querySelector('.dropdown-menu');
+  const demandOption1 = document.getElementById('option1');
+  //const demandOption2 = document.getElementById('option2');
+  //const demandOption3 = document.getElementById('option3');
+  var dropdownButtons = [demandOption1];
+  const demandCreate =  document.getElementById('createDemand');
+
+  const demandPanelInput = document.getElementById('demandsInput');
+  const inputButton = document.getElementById('inputButton');
+  const demandresultsCustom = document.getElementById('postDemandResultsCustom')
+  const demandCustomRequest = $("input:text");
 
   // identify website
   var currentTab = tabs[0]
   var currentURL = currentTab.url;
   let websiteName = findWebsiteName(currentURL);
+      ///////// MAKE SURE URL IS DEFINED \\\\\\\\\\\\\\
+
   
   chrome.storage.sync.get(websiteName, async function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
     let results = await result[websiteName];
     if(results) {
-    console.log('website name is: ' + JSON.stringify(websiteName));
-    console.log("results are " + JSON.stringify(results));
+      console.log('website name is: ' + JSON.stringify(websiteName));
+      console.log("results are " + JSON.stringify(results));
+      let brandDocId = results.docId;
 
-    // display esg
-    let answer = await displayEsg(results);
-    document.getElementById("postEsgResults").innerHTML = answer;
-    demandResult.style.display = "block";
+      // display esg
+      let answer = await displayEsg(results);
+      document.getElementById("postEsgResults").innerHTML = answer;
+      demandResult1.style.display = "block";
 
-    //display question
-    firebase.auth().onAuthStateChanged(async function(user) {
-      if (user) {
-        user.providerData.forEach(async function (profile) {
-          let fullid = profile.uid;
-          const demandsResults = await publishContent(results,fullid);
-          alert('demands results in core' + JSON.stringify(demandsResults));
-
-          if(demandsResults[0]) {
-            console.log("ordered results are" + JSON.stringify(demandsResults));
-            let displayedQuestion1 = demandsResults[0];
+      //display question
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (user) {
+          user.providerData.forEach(async function (profile) {
+            let fullid = profile.uid;
+            const demandsResults = await publishContent(results,fullid);
             demandPanel.style.display = "block";
-            demandResult.innerHTML = displayedQuestion1.question;
+            demandPanel3.style.display = "none";
 
-            if (displayedQuestion1.requested == 1) {
-              requestButton1.innerHTML = "Requested";
-              requestButton1.disabled = true;
-              requestButton1.style.backgroundColor = colors.requested;
-            } else {
-            requestButton1.innerHTML = "Request";
-            requestButton1.addEventListener('click', async function(tab) {
-              requestButton1.innerHTML = "Requested";
-              requestButton1.disabled = true;
-              requestButton1.style.backgroundColor = colors.requested;
-              let brandDocId = results.docId;
-              let questionId = displayedQuestion1.questionId;
-              let currentUpvotes = displayedQuestion1.upvote + 1;
-              let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId).collection('demands').doc(fullid);
-              demandRef.set({
-                upvote: 1 
-              })
-              let upvoteRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId);
-              var setWithMerge = upvoteRef.set({
-                upvote: currentUpvotes
-            }, { merge: true });
-            });
-            }
+            inputButton.addEventListener('click', function(tab) {
+              console.log('to do');
+              let customDemand = demandCustomRequest.val();
+              if (customDemand.length > 20 && customDemand.length < 50 ) {
+                registerNewDemand(brandDocId, customDemand ,fullid);
+                demandPanelInput.style.display = "none"
+                demandPanel3.style.display = "block"
+                demandResult3.innerHTML = customDemand;
+                requestButton3.innerHTML = "Requested";
+                requestButton3.disabled = true;
+                requestButton3.style.backgroundColor = colors.requested;
+                } else if (demandCreate.innerText.length > 20 ){
+                  alert('Your demand is not descriptive enough');
+                } else if (demandCreate.innerText.length > 50) {
+                  alert('Your demand is too descriptive');
+                }
+            })
 
-            if(demandsResults[1]) {
-              let displayedQuestion1 = demandsResults[1];
-              demandResult2.innerHTML = displayedQuestion1.question;
+            if(demandsResults[0]) {
+              console.log("ordered results are" + JSON.stringify(demandsResults));
+              let displayedQuestion1 = demandsResults[0];
+              demandResult1.innerHTML = displayedQuestion1.question;
+
               if (displayedQuestion1.requested == 1) {
-                requestButton2.innerHTML = "Requested";
-                requestButton2.disabled = true;
-                requestButton2.style.backgroundColor = colors.requested;
+                requestButton1.innerHTML = "Requested";
+                requestButton1.disabled = true;
+                requestButton1.style.backgroundColor = colors.requested;
               } else {
-              requestButton2.innerHTML = "Request";
-              requestButton2.addEventListener('click', async function(tab) {
-                requestButton2.innerHTML = "Requested";
-                requestButton2.disabled = true;
-                requestButton2.style.backgroundColor = colors.requested;
-                let brandDocId = results.docId;
-                let questionId = displayedQuestion1.questionId;
-                let currentUpvotes = displayedQuestion1.upvote + 1;
-                let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId).collection('demands').doc(fullid);
-                demandRef.set({
-                  upvote: 1 
-                })
-                let upvoteRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId);
-                var setWithMerge = upvoteRef.set({
-                  upvote: currentUpvotes
-                }, { merge: true });
+              requestButton1.innerHTML = "Request";
+              requestButton1.addEventListener('click', async function(tab) {
+                requestButton1.innerHTML = "Requested";
+                requestButton1.disabled = true;
+                requestButton1.style.backgroundColor = colors.requested;
+                registerDemand(brandDocId,displayedQuestion1,fullid);
               });
               }
 
-              if (demandsResults[2]) {
-                demandOption1.innerHTML = demandsResults[2].question;
+              if(demandsResults[1]) {
+                let displayedQuestion1 = demandsResults[1];
+                demandResult2.innerHTML = displayedQuestion1.question;
+                if (displayedQuestion1.requested == 1) {
+                  requestButton2.innerHTML = "Requested";
+                  requestButton2.disabled = true;
+                  requestButton2.style.backgroundColor = colors.requested;
+                } else {
+                requestButton2.innerHTML = "Request";
+                requestButton2.addEventListener('click', async function(tab) {
+                  requestButton2.innerHTML = "Requested";
+                  requestButton2.disabled = true;
+                  requestButton2.style.backgroundColor = colors.requested;
+                  registerDemand(brandDocId,displayedQuestion1,fullid);
+                });
+                }
+                if (demandsResults[2]) {
+                  let nb = demandsResults.length;
+                  demandPanel2.style.display = "block";
+                  demandPanel1.style.display = "block";
+                  demandPanelDropdown.style.display = "block"
+                  demandPanelInput.style.display = "none"
+                  demandCreate.addEventListener('click', function(tab) {
+                    demandPanelInput.style.display = "block"
+                    demandPanelDropdown.style.display = "none"
+                  })
+                  for (let i = 2; i < 3; i ++) {
+                    if (demandsResults[i]) {
+                      let answeredQuestion = demandsResults[i];
+                      let optionButton = dropdownButtons[i-2];
+                      optionButton.innerHTML = answeredQuestion.question;
+                      optionButton.style.display = "block";
+                      optionButton.addEventListener('click', function(tab) {
+                        demandPanelDropdown.style.display = "none"
+                        demandPanel3.style.display = "block"
+                        demandResult3.innerHTML = answeredQuestion.question
+                        requestButton3.innerHTML = "Request"
+                        requestButton3.addEventListener('click', function(tab) {
+                          registerDemand(brandDocId,answeredQuestion,fullid);
+                          requestButton3.innerHTML = "Requested";
+                          requestButton3.disabled = true;
+                          requestButton3.style.backgroundColor = colors.requested;
+                        })
+                      })
+                    } else {
+                      option.style.display = "none";
+                    }
+                  }
+                } else {
+                  demandPanelDropdown.style.display = "none";
+                  demandPanelInput.style.display = "block"
+                }
+              } else {
+                console.log('no second question for this brand');
+                demandPanel2.style.display = "none";
+                demandPanelDropdown.style.display = "none";
+                demandPanelInput.style.display = "block";
               }
             } else {
-              console.log('no second question for this brand');
               demandPanel2.style.display = "none";
+              demandPanel1.style.display = "none";
+              demandPanelDropdown.style.display = "none"
+              demandPanelInput.style.display = "block"
             }
-          } else {
-            console.log('demand will not be displayed');
-            demandPanel2.style.display = "none";
-          }
-        })
-      } else {
-    }
+          })
+        } else {
+          login()
+        }
     })
   } else {
     alert ('oops, try again later');
   }
   });
-
 })
 
 // demand functions
+function registerNewDemand(brandDocId,customDemand, fullid) {
+  ///////// ADD IF BRAND DOES NOT EXIST \\\\\\\\\\\\\\
+  let questionRef = db.collection('brands').doc(brandDocId).collection('questions');
+  questionRef.add({
+    upvote: 1,
+    question: customDemand
+  }).then(function(docRef) {
+    let ref = docRef.id;
+    let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(ref).collection('demands').doc(fullid);
+    demandRef.set({
+      upvote: 1 
+    })
+  })
+}
+
+function registerDemand(brandDocId, displayedQuestion1, fullid) {
+  let questionId = displayedQuestion1.questionId;
+  let currentUpvotes = displayedQuestion1.upvote + 1;
+  let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId).collection('demands').doc(fullid);
+  demandRef.set({
+    upvote: 1 
+  })
+  let upvoteRef = db.collection('brands').doc(brandDocId).collection('questions').doc(questionId);
+  var setWithMerge = upvoteRef.set({
+    upvote: currentUpvotes
+  }, { merge: true });
+}
+
 async function publishContent(results,fullid){
   try{
     const brandDocId = results.docId;
+    var sortedResults = [];
+    if (brandDocId) {
     var demands = await checkQueries(brandDocId,fullid);
     const nb = demands.length;
     var demandsResults = [];
@@ -155,10 +237,10 @@ async function publishContent(results,fullid){
       demandsResults[i] = question;
     }
 
-    const sortedResults = demandsResults.sort(function(a, b){
+    sortedResults = demandsResults.sort(function(a, b){
       return b.popularity-a.popularity
     });
-
+  } 
   return sortedResults
   } catch(error) {
     console.log(error);
@@ -283,4 +365,27 @@ function findWebsiteName(currentURL) {
   const websiteName = websiteArray.join('.');
   
 return websiteName;
+}
+
+async function login() {
+    ///////// TEST THE LOGIN \\\\\\\\\\\\\\
+
+  chrome.identity.getAuthToken({interactive: true}, function(token) {
+  if (chrome.runtime.lastError) {
+      alert(chrome.runtime.lastError.message);
+      var status = "failed";
+      console.log(status);
+      return status;
+  }
+  var x = new XMLHttpRequest();
+  x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
+  x.onload = function() {
+      alert(x.response);
+      status = "success";
+      console.log(status);
+  };
+  x.send();
+  return status;
+});
+return true
 }

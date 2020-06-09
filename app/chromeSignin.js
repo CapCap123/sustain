@@ -25,6 +25,26 @@ function authenticatedXhr(method, url, callback) {
     }
   }
 
+  async function login() {
+    chrome.identity.getAuthToken({interactive: true}, function(token) {
+    if (chrome.runtime.lastError) {
+        alert(chrome.runtime.lastError.message);
+        var status = "failed";
+        console.log(status);
+        return status;
+    }
+    var x = new XMLHttpRequest();
+    x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
+    x.onload = function() {
+        alert(x.response);
+        status = "success";
+        console.log(status);
+    };
+    x.send();
+    return status;
+  });
+  return true
+  }
 
 //const loggedIn = login();
 
