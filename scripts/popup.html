@@ -24,6 +24,7 @@
         <div class="panel-body" id="postEsgResults"></div>
         <button class="btn btn-link btn-sm" id="detailsButton">See details</button>
       </div>
+
       <div class="panelDemand" id="demands">
         <h1 id="title">Demands</h1>
         <div class="panelDemand2" id="demands1">
@@ -58,8 +59,9 @@
     </div>
       </div>
     </div>
+
       <div class="panelTrophies" id="trophies">
-        <h1 id="title">Trophies</h1>
+        <h1 id="title">Trophies old</h1>
         <div class="panelTrophies2" id="trophies1">
           <div class="panel-body" id="postTrophiesResults">Vegetarian restaurant</div>
           <div class="btn-group">
@@ -67,7 +69,39 @@
             <button type="button" class="btn-downvote">Downvote</button>
           </div>
         </div>
-  </div>
+      </div>
+
+      <div class="panelTrophies" id="trophies">
+        <h1 id="title">Trophies</h1>
+        <div class="panelTrophies2" id="trophie1">
+          <div class="panel-body" id="postTrophiesResults1"></div>
+          <button type="button" class="btn-request" id="requestButton1"></button>
+        </div>
+        <div class="panelTrophies2" id="panelTrophies2">
+        <div class="panel-body" id="postDemandResults2"></div>
+          <button type="button" class="btn-request" id="requestButton2"></button>
+      </div>
+      <div class="panelTrophies2" id="trophiesDropdown">
+        <div class="panel-body" id="postDropdown">Something else?</div>
+        <div class="dropdown">
+          <button class="btn-request dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More options
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <button class="dropdown-item" id="option1" type="button"></button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="createDemand" type="button">Create my own demand</button>
+          </div>
+        </div>
+      </div>
+      <div class="panelTrophie2" id="trophiesInput">
+      <div class="panel-body" id="postTrophiesResultsCustom">Create a new demand here:</div>
+      <input type="text" id="inputTrophies" name="demand" class="form-control">
+      <button type="button" class="btn-request" id="inputButton">Submit</button>
+    </div>
+      </div>
+    </div>
+
 </div>
 </body>
 </html>
