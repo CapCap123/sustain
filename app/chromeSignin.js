@@ -46,6 +46,31 @@ function authenticatedXhr(method, url, callback) {
   return true
   }
 
+  function login() {
+    try {
+      chrome.identity.getAuthToken({interactive: false}, function(token) {
+        if (chrome.runtime.lastError) {
+            alert(chrome.runtime.lastError.message);
+            var status = "login failed";
+        } else {
+        var x = new XMLHttpRequest();
+        x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
+        x.onload = function() {
+            alert(x.response);
+        };
+        x.send();
+        var status = "success";
+        var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+        firebase.auth().signInWithCredential(credential);
+        alert('you logged in with your Google account')
+        }
+      });
+      return status
+    } catch(error) {
+      console.log(error);
+    }
+  };
+
 //const loggedIn = login();
 
 if(demandsResults[0]) {

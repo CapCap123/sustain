@@ -5,9 +5,6 @@ import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {auth} from 'firebase/auth'
 import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
-//import * as jquery from 'jquery';
-//import * as popper from 'popper.js';
-// callback = function (error, httpStatus, responseText);
 
 var config = {
   apiKey: '',
@@ -18,71 +15,54 @@ firebase.initializeApp(config);
 let db = firebase.firestore();
 module.exports = { db };
 
-var toReview = {
-};
-
 //let authUser = firebase.auth();
 //module.exports = {authUser};
 
-function login() {
-  try {
-    chrome.identity.getAuthToken({interactive: false}, function(token) {
-      if (chrome.runtime.lastError) {
-          alert(chrome.runtime.lastError.message);
-          var status = "login failed";
-      } else {
-      var x = new XMLHttpRequest();
-      x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
-      x.onload = function() {
-          alert(x.response);
-      };
-      x.send();
-      var status = "success";
-      var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
-      firebase.auth().signInWithCredential(credential);
-      alert('you logged in with your Google account')
-      }
-    });
-    return status
-  } catch(error) {
-    console.log(error);
-  }
-};
 
-chrome.tabs.onActivated.addListener(async function (tabId, changeInfo, tabs) { 
+chrome.tabs.onActivated.addListener(function (tabId, windowId) { 
+  //alert('tab activated');
   let badgeUpdated = updateBadge();
-  console.log('tab activated');
-  chrome.tabs.onUpdated.addListener(function(tabId, changeInfo,tabs) {
-    console.log('tab updated');
-    var currentTab = tabs[0];
-    if (changeInfo.status == 'complete') {
-      console.log('change info complete')
-      let badgeUpdated = updateBadge();
-    }
+  chrome.tabs.onUpdated.addListener(function(changeInfo ,tabs) {
+        //alert(changeInfo);
+        let badgeUpdated = updateBadge();
   });
+
 });
 
 async function updateBadge() {
-  chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+  chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, async function(tabs) {
     const currentTab = tabs[0];
-    console.log('url complete');
+    if(currentTab) {
+    //alert(JSON.stringify(currentTab));
     const currentURL = currentTab.url;
     const websiteName = findWebsiteName(currentURL);
 
-    var brand = await checkBrandName(websiteName);
+    chrome.storage.sync.get(websiteName, async function(result) {
+      //alert( websiteName + " results retrieved from storage in BG is " + result[websiteName]);
+      let results = await result[websiteName];
+      if(results && (results.new_brand != "new")) {
+        console.log(results);
 
-    // retrieve esg data
-    const results = await checkBusinessData(brand);
-    console.log('bg results brand check: ' + results);
-    chrome.storage.sync.set({[websiteName]: results}, function() {
-      console.log("Value of " + websiteName + " is set to " + results);
-    });
+        let badgeColor = setBadge(await results);
+        chrome.browserAction.setBadgeText({text: "   "});
+        chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+      } else {
+        //alert('results not yet in storage');
+        var brand = await checkBrandName(websiteName);
+        const results = await checkBusinessData(brand);
 
-    let badgeColor = setBadge(await results);
-    chrome.browserAction.setBadgeText({text: "   "});
-    chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+        let badgeColor = setBadge(await results);
+        chrome.browserAction.setBadgeText({text: "   "});
+        chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+
+        chrome.storage.sync.set({[websiteName]: results}, function() {
+          //alert("Value in BG of " + websiteName + " is set to " + results);
+        });
+      }
     return true
   })
+}
+})
 }
 
 // function website name
@@ -147,6 +127,7 @@ async function checkBusinessData(brand) {
           finalBusiness.brand_name = matchedBusiness.name;
           finalBusiness.docId = matchedBusiness.docId;
           finalBusiness.hasBusiness_ref = true;
+          finalBusiness.new_brand =  matchedBusiness.new_brand
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -178,6 +159,7 @@ async function checkBrand(brand) {
         const businessRef = doc.data().business_ref
         const businessName = doc.data().business_name
         const brandDocId = doc.id;
+        brand.small_business = doc.data().small_business
         brand.docId = brandDocId;
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
@@ -187,7 +169,7 @@ async function checkBrand(brand) {
         } else{
           brand.business_ref = businessRef;
           brand.business_name = businessName;
-          brand.hasBusiness_ref == true;
+          brand.hasBusiness_ref = true;
           console.log('brand exists and has business ref')
         }
       })
@@ -230,7 +212,7 @@ function setBadge(results) {
 // chrome storage
 chrome.storage.sync.getBytesInUse (null, function (result) {
   console.log('bytes in use in sync: ' + result);
-  if (result < 0.000001 * 102400) {
+  if (result < 0.0000008 * 102400) {
     console.log('there is room in sync storage');
   } else { 
     chrome.storage.sync.clear(function() {
@@ -241,7 +223,7 @@ chrome.storage.sync.getBytesInUse (null, function (result) {
 
 chrome.storage.local.getBytesInUse (null, function (result) {
   console.log('bytes in use in local: ' + result);
-  if (result < 0.0000000000000001 * 5242880) {
+  if (result < 0.0000008 * 5242880) {
     console.log('there is room in local storage');
   } else { 
     chrome.storage.local.clear(function() {
@@ -249,4 +231,3 @@ chrome.storage.local.getBytesInUse (null, function (result) {
     });
   }
 });
-

@@ -21,13 +21,49 @@ const trophies ={
 
 chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
   let user = firebase.auth().currentUser; 
-
   const detailsButton = document.getElementById('detailsButton');
   const demandPanel = document.getElementById('demands');
   demandPanel.style.display = "none";
 
+  // identify website
+  var currentTab = tabs[0]
+  var currentURL = currentTab.url;
+  let websiteName = findWebsiteName(currentURL);
+  
+  chrome.storage.sync.get(websiteName, async function(result) {
+    console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
+    let results = await result[websiteName];
+    if(results) {
+      console.log('website name is: ' + JSON.stringify(websiteName));
+      console.log("results are " + JSON.stringify(results));
+        let brandDocId = results.docId;
+
+      // display esg
+      let answer = await displayEsg(results);
+      document.getElementById("postEsgResults").innerHTML = answer;
+
+      //display question
+      firebase.auth().onAuthStateChanged(async function(user) {
+        if (user) {
+          user.providerData.forEach(async function (profile) {
+            let fullid = profile.uid;
+            displayDemand(results, websiteName, name, fullid, demandPanel);
+          })
+        } else {
+          login()
+        }
+    })
+  } else {
+    alert ('oops, try again later');
+  }
+  });
+})
+
+
+// massive function display
+async function displayDemand(results, websiteName, name, fullid, demandPanel) {
   const demandPanel1 = document.getElementById('demands1');
-  const demandResult1 = document.getElementById('postDemandResults1')
+  const demandResult1 = document.getElementById('postDemandResults1');
   const requestButton1 = document.getElementById("requestButton1");
   const demandPanel2 = document.getElementById('demands2');
   const demandResult2 = document.getElementById('postDemandResults2')
@@ -46,157 +82,151 @@ chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
 
   const demandPanelInput = document.getElementById('demandsInput');
   const inputButton = document.getElementById('inputButton');
-  const demandresultsCustom = document.getElementById('postDemandResultsCustom')
+  const demandresultsCustom = document.getElementById('postDemandResultsCustom');
   const demandCustomRequest = $("input:text");
 
-  // identify website
-  var currentTab = tabs[0]
-  var currentURL = currentTab.url;
-  let websiteName = findWebsiteName(currentURL);
-      ///////// MAKE SURE URL IS DEFINED \\\\\\\\\\\\\\
+  const demandsResults = await publishContent(results,fullid);
+  demandPanel.style.display = "block";
+  demandPanel3.style.display = "none";
 
-  
-  chrome.storage.sync.get(websiteName, async function(result) {
-    console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
-    let results = await result[websiteName];
-    if(results) {
-      console.log('website name is: ' + JSON.stringify(websiteName));
-      console.log("results are " + JSON.stringify(results));
-      let brandDocId = results.docId;
+  inputButton.addEventListener('click', function(tab) {
+    console.log('to do');
+    let customDemand = demandCustomRequest.val();
+    if (customDemand.length > 20 && customDemand.length < 50 ) {
+      if (results.new_brand == true) {
+        registerNewBrand(websiteName, name, customDemand, fullid)
+      } else {
+      registerNewDemand(brandDocId, customDemand ,fullid);
+      }
+    demandPanelInput.style.display = "none"
+    demandPanel3.style.display = "block"
+    demandResult3.innerHTML = customDemand;
+    requestButton3.innerHTML = "Requested";
+    requestButton3.disabled = true;
+    requestButton3.style.backgroundColor = colors.requested;
+    } else if (demandCreate.innerText.length > 20 ){
+      alert('Your demand is not descriptive enough');
+    } else if (demandCreate.innerText.length > 50) {
+      alert('Your demand is too descriptive');
+    }
+  })
 
-      // display esg
-      let answer = await displayEsg(results);
-      document.getElementById("postEsgResults").innerHTML = answer;
-      demandResult1.style.display = "block";
+  if(demandsResults[0]) {
+    console.log("ordered results are" + JSON.stringify(demandsResults));
+    let displayedQuestion1 = demandsResults[0];
+    demandResult1.innerHTML = displayedQuestion1.question;
 
-      //display question
-      firebase.auth().onAuthStateChanged(async function(user) {
-        if (user) {
-          user.providerData.forEach(async function (profile) {
-            let fullid = profile.uid;
-            const demandsResults = await publishContent(results,fullid);
-            demandPanel.style.display = "block";
-            demandPanel3.style.display = "none";
+    if (displayedQuestion1.requested == 1) {
+      requestButton1.innerHTML = "Requested";
+      requestButton1.disabled = true;
+      requestButton1.style.backgroundColor = colors.requested;
+    } else {
+    requestButton1.innerHTML = "Request";
+    requestButton1.addEventListener('click', async function(tab) {
+      requestButton1.innerHTML = "Requested";
+      requestButton1.disabled = true;
+      requestButton1.style.backgroundColor = colors.requested;
+      registerDemand(brandDocId,displayedQuestion1,fullid);
+    });
+    }
 
-            inputButton.addEventListener('click', function(tab) {
-              console.log('to do');
-              let customDemand = demandCustomRequest.val();
-              if (customDemand.length > 20 && customDemand.length < 50 ) {
-                registerNewDemand(brandDocId, customDemand ,fullid);
-                demandPanelInput.style.display = "none"
-                demandPanel3.style.display = "block"
-                demandResult3.innerHTML = customDemand;
+    if(demandsResults[1]) {
+      let displayedQuestion1 = demandsResults[1];
+      demandResult2.innerHTML = displayedQuestion1.question;
+      if (displayedQuestion1.requested == 1) {
+        requestButton2.innerHTML = "Requested";
+        requestButton2.disabled = true;
+        requestButton2.style.backgroundColor = colors.requested;
+      } else {
+      requestButton2.innerHTML = "Request";
+      requestButton2.addEventListener('click', async function(tab) {
+        requestButton2.innerHTML = "Requested";
+        requestButton2.disabled = true;
+        requestButton2.style.backgroundColor = colors.requested;
+        registerDemand(brandDocId,displayedQuestion1,fullid);
+      });
+      }
+      if (demandsResults[2]) { 
+        let nb = demandsResults.length;
+        demandPanel2.style.display = "block";
+        demandPanel1.style.display = "block";
+        demandPanelDropdown.style.display = "block"
+        demandPanelInput.style.display = "none"
+        demandCreate.addEventListener('click', function(tab) {
+          demandPanelInput.style.display = "block"
+          demandPanelDropdown.style.display = "none"
+        })
+        for (let i = 2; i < 3; i ++) {
+          if (demandsResults[i]) {
+            let answeredQuestion = demandsResults[i];
+            let optionButton = dropdownButtons[i-2];
+            optionButton.innerHTML = answeredQuestion.question;
+            optionButton.style.display = "block";
+            optionButton.addEventListener('click', function(tab) {
+              demandPanelDropdown.style.display = "none"
+              demandPanel3.style.display = "block"
+              demandResult3.innerHTML = answeredQuestion.question
+              requestButton3.innerHTML = "Request"
+              requestButton3.addEventListener('click', function(tab) {
+                registerDemand(brandDocId,answeredQuestion,fullid);
                 requestButton3.innerHTML = "Requested";
                 requestButton3.disabled = true;
                 requestButton3.style.backgroundColor = colors.requested;
-                } else if (demandCreate.innerText.length > 20 ){
-                  alert('Your demand is not descriptive enough');
-                } else if (demandCreate.innerText.length > 50) {
-                  alert('Your demand is too descriptive');
-                }
+              })
             })
-
-            if(demandsResults[0]) {
-              console.log("ordered results are" + JSON.stringify(demandsResults));
-              let displayedQuestion1 = demandsResults[0];
-              demandResult1.innerHTML = displayedQuestion1.question;
-
-              if (displayedQuestion1.requested == 1) {
-                requestButton1.innerHTML = "Requested";
-                requestButton1.disabled = true;
-                requestButton1.style.backgroundColor = colors.requested;
-              } else {
-              requestButton1.innerHTML = "Request";
-              requestButton1.addEventListener('click', async function(tab) {
-                requestButton1.innerHTML = "Requested";
-                requestButton1.disabled = true;
-                requestButton1.style.backgroundColor = colors.requested;
-                registerDemand(brandDocId,displayedQuestion1,fullid);
-              });
-              }
-
-              if(demandsResults[1]) {
-                let displayedQuestion1 = demandsResults[1];
-                demandResult2.innerHTML = displayedQuestion1.question;
-                if (displayedQuestion1.requested == 1) {
-                  requestButton2.innerHTML = "Requested";
-                  requestButton2.disabled = true;
-                  requestButton2.style.backgroundColor = colors.requested;
-                } else {
-                requestButton2.innerHTML = "Request";
-                requestButton2.addEventListener('click', async function(tab) {
-                  requestButton2.innerHTML = "Requested";
-                  requestButton2.disabled = true;
-                  requestButton2.style.backgroundColor = colors.requested;
-                  registerDemand(brandDocId,displayedQuestion1,fullid);
-                });
-                }
-                if (demandsResults[2]) {
-                  let nb = demandsResults.length;
-                  demandPanel2.style.display = "block";
-                  demandPanel1.style.display = "block";
-                  demandPanelDropdown.style.display = "block"
-                  demandPanelInput.style.display = "none"
-                  demandCreate.addEventListener('click', function(tab) {
-                    demandPanelInput.style.display = "block"
-                    demandPanelDropdown.style.display = "none"
-                  })
-                  for (let i = 2; i < 3; i ++) {
-                    if (demandsResults[i]) {
-                      let answeredQuestion = demandsResults[i];
-                      let optionButton = dropdownButtons[i-2];
-                      optionButton.innerHTML = answeredQuestion.question;
-                      optionButton.style.display = "block";
-                      optionButton.addEventListener('click', function(tab) {
-                        demandPanelDropdown.style.display = "none"
-                        demandPanel3.style.display = "block"
-                        demandResult3.innerHTML = answeredQuestion.question
-                        requestButton3.innerHTML = "Request"
-                        requestButton3.addEventListener('click', function(tab) {
-                          registerDemand(brandDocId,answeredQuestion,fullid);
-                          requestButton3.innerHTML = "Requested";
-                          requestButton3.disabled = true;
-                          requestButton3.style.backgroundColor = colors.requested;
-                        })
-                      })
-                    } else {
-                      option.style.display = "none";
-                    }
-                  }
-                } else {
-                  demandPanelDropdown.style.display = "none";
-                  demandPanelInput.style.display = "block"
-                }
-              } else {
-                console.log('no second question for this brand');
-                demandPanel2.style.display = "none";
-                demandPanelDropdown.style.display = "none";
-                demandPanelInput.style.display = "block";
-              }
-            } else {
-              demandPanel2.style.display = "none";
-              demandPanel1.style.display = "none";
-              demandPanelDropdown.style.display = "none"
-              demandPanelInput.style.display = "block"
-            }
-          })
-        } else {
-          login()
+          } else {
+            option.style.display = "none";
+          }
         }
-    })
+      } else {
+        demandPanelDropdown.style.display = "none";
+        demandPanelInput.style.display = "block"
+      }
+    } else {
+      console.log('no second question for this brand');
+      demandPanel2.style.display = "none";
+      demandPanelDropdown.style.display = "none";
+      demandPanelInput.style.display = "block";
+    }
   } else {
-    alert ('oops, try again later');
+    demandPanel2.style.display = "none";
+    demandPanel1.style.display = "none";
+    demandPanelDropdown.style.display = "none"
+    demandPanelInput.style.display = "block"
   }
-  });
-})
+}
 
 // demand functions
+
+function registerNewBrand(websiteName, name, customDemand, fullid) {
+  ///////// ADD IF BRAND DOES NOT EXIST \\\\\\\\\\\\\\
+  let brandRef = db.collection('brands');
+  let addBrand = brandRef.add({
+    name: websiteName,
+    small_business: 'new',
+    websites: [websiteName],
+    name: name
+  }).then(function(docRef) {
+    let questionRef = db.collection('brands').doc(docRef.id).collection('questions');
+    questionRef.add({
+      upvote: 1,
+      question: customDemand,
+    }).then(function(docRef2) {
+      let ref = docRef2.id;
+      let demandRef = db.collection('brands').doc(docRef.id).collection('questions').doc(ref).collection('demands').doc(fullid);
+      demandRef.set({
+        upvote: 1 
+      })
+    })
+  })
+}
 function registerNewDemand(brandDocId,customDemand, fullid) {
   ///////// ADD IF BRAND DOES NOT EXIST \\\\\\\\\\\\\\
   let questionRef = db.collection('brands').doc(brandDocId).collection('questions');
   questionRef.add({
     upvote: 1,
-    question: customDemand
+    question: customDemand,
+    new_demand: true
   }).then(function(docRef) {
     let ref = docRef.id;
     let demandRef = db.collection('brands').doc(brandDocId).collection('questions').doc(ref).collection('demands').doc(fullid);
@@ -205,6 +235,7 @@ function registerNewDemand(brandDocId,customDemand, fullid) {
     })
   })
 }
+
 
 function registerDemand(brandDocId, displayedQuestion1, fullid) {
   let questionId = displayedQuestion1.questionId;
@@ -368,8 +399,6 @@ return websiteName;
 }
 
 async function login() {
-    ///////// TEST THE LOGIN \\\\\\\\\\\\\\
-
   chrome.identity.getAuthToken({interactive: true}, function(token) {
   if (chrome.runtime.lastError) {
       alert(chrome.runtime.lastError.message);
