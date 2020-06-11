@@ -29,11 +29,11 @@ async function findWebsiteName(currentURL) {
     var websiteName = websiteArray.join('.');
   
      for (let i = 0; i < urlEnds.length ; i++) {
-       if (websiteArray[1].includes(urlEnds[i])) {
+       if (websiteArray[1] == urlEnds[i]) {
          websiteName = websiteFullArray[0]
          return websiteName
        }
-    }
+      }
     return websiteName
   }
   

@@ -18,14 +18,6 @@ const colors = {
   "requested": "#afafaf"
 };
 
-const trophies ={
-  "circular": "Circular economy",
-  "local": "Local products",
-  "packaging": "Eco-friendly packaging",
-  "supply-chain": "Transparent supply chain",
-  "vegan": "great vegan options"
-};
-
 chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
 
   // identify website
@@ -98,8 +90,6 @@ async function displayDemand(results, websiteName, fullid) {
 
   const demandPanelDropdown = document.getElementById('demandsDropdown');
   const demandOption1 = document.getElementById('demandOption');
-  //const demandOption2 = document.getElementById('option2');
-  //const demandOption3 = document.getElementById('option3');
   const dropdownButtons = [demandOption1];
   const demandCreate =  document.getElementById('createDemand');
 
@@ -118,9 +108,10 @@ async function displayDemand(results, websiteName, fullid) {
   let brandDocId = results.docId;
   console.log(JSON.stringify(results) + 'results before pusblishing demands')
 
-  inputButton.addEventListener('click', function(tab) {
+  inputButton.addEventListener('click', async function(tab) {
     let customDemand = demandCustomRequest.val();
-    if (customDemand.length > 20 && customDemand.length < 40 ) {
+    let languageIssue = await validateWording(customDemand, 15, 35)
+    if (languageIssue == "none") {
       if (!results.docId) {
         registerNewBrand(websiteName, customDemand, fullid, collection)
       } else {
@@ -132,10 +123,6 @@ async function displayDemand(results, websiteName, fullid) {
       requestButton3.innerHTML = "Requested";
       requestButton3.disabled = true;
       requestButton3.style.backgroundColor = colors.requested;
-    } else if (customDemand.length > 15) {
-      alert('this is not descriptive enough');
-    } else {
-      alert('Try to make it a bit shorter');
     }
   })
 
@@ -234,8 +221,6 @@ async function displayTrophies(results, websiteName, fullid,) {
 
   const trophiesPanelDropdown = document.getElementById('trophiesDropdown');
   const trophiesOption1 = document.getElementById('trophiesOption');
-  //const demandOption2 = document.getElementById('option2');
-  //const demandOption3 = document.getElementById('option3');
   const dropdownTrophies = [trophiesOption1];
   const trophiesCreate =  document.getElementById('createTrophy');
 
@@ -256,8 +241,8 @@ async function displayTrophies(results, websiteName, fullid,) {
 
   inputTButton.addEventListener('click', async function(tab) {
     let customTrophies = trophiesCustomRequest.val();
-    alert('trophies: ' + customTrophies)
-    if (customTrophies.length > 10 && customTrophies.length < 35 ) {
+    let languageIssue = await validateWording(customTrophies, 15, 30);
+    if (languageIssue == "none") {
       if (!results.docId) {
         registerNewBrand(websiteName, customTrophies, fullid, collection)
       } else {
@@ -269,10 +254,6 @@ async function displayTrophies(results, websiteName, fullid,) {
       requestTButton2.innerHTML = "Requested";
       requestTButton2.disabled = true;
       requestTButton2.style.backgroundColor = colors.requested;
-    } else if (customTrophies.length < 10) {
-      alert('this is not descriptive enough');
-    } else {
-      alert('Try to make it a bit shorter');
     }
   })
 
@@ -469,22 +450,21 @@ async function checkDemands(brandDocId,collection){
   }
 };
 
-async function validateWording (customTrophies) {
+async function validateWording (customTrophies, min, max) {
   try {
-  console.log('trying to check language')
-  console.log(customTrophies);
-  //const languageIssue = await checkLanguage(customTrophies);
-  //console.log("language issue in validate W: " + JSON.stringify(languageIssue));
-    //if (languageIssue == 'language') {
-      //let wordingIssue = 'language';
-      //alert('Watch your language, please');
-      //return wordingIssue
-    //} else {
-      if (customTrophies.length < 15) {
+    console.log('trying to check language')
+    const languageIssue = await checkLanguage(customTrophies);
+    console.log(languageIssue)
+    if (languageIssue == true) {
+      alert('Watch your language, please');
+      let wordingIssue = languageIssue;
+      return wordingIssue
+    } else {
+      if (customTrophies.length < min) {
         let wordingIssue ="short";
         alert('This is not descriptive enough');
         return wordingIssue
-      } else if (customTrophies.length > 40) {
+      } else if (customTrophies.length > max) {
         let wordingIssue = "long";
         alert('Try to make it a bit shorter');
         return wordingIssue
@@ -492,11 +472,24 @@ async function validateWording (customTrophies) {
         let wordingIssue = "none"
         console.log('NO language issue');
         return wordingIssue
-    }
-    //} 
+      }
+    } 
   } catch(error) {
     console.log(error); 
   }
+}
+
+async function checkLanguage(customTrophies) {
+  console.log(customTrophies);
+  const issues = ["suck","fuck","shit","faggot","dick","bowls","ass","pute","cul","chienne","mère","fils de","cock", "bitch", "salope", "cunt"];
+  console.log(issues[1]);
+  for (let i=0;i<issues.length;i++) {
+    let word = issues[i];
+    if (customTrophies.indexOf(word) > -1 ) {
+      return true
+    } 
+  }
+  return false
 }
 
 //functions esg
