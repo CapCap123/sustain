@@ -484,20 +484,30 @@ async function validateWording (customTrophies) {
 //functions esg
 function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
-    let answer =   (
-      "We did not find official information about "+ results.name
+    if(results.private) {
+      let answer =   (
+        results.name + " is a private company. Official risks reports of public companies are ususally not public, or do not exist."
+        ); 
+        displayPrivateLink(results.private)
+      detailsButton.style.display = "block";
+      document.getElementById("postEsgResults").innerHTML = answer;
+      return answer
+    } else {  
+    let answer =  (
+      "We did not find official information about "+ results.name + ", yet."
       ); 
       detailsButton.style.display = "none"
       document.getElementById("postEsgResults").innerHTML = answer;
       return answer
+    }
   } else {
     if (results.hasEsg == false) {
       let answer = (
-      "This website belongs to "+ results.name + 
+      "This website belongs to "+ results.name + ", which is public" +
       "<br>" + results.name + " did not make their information public"
       );
-      displayProfileLink(results.yahoo_uid)
-      detailsButton.style.display = "block"
+      displayProfileLink(results.yahoo_uid);
+      detailsButton.style.display = "block";
       document.getElementById("postEsgResults").innerHTML = answer;
       return answer
     } else if (results.hasEsg == true) {
@@ -514,6 +524,17 @@ function displayEsg(results) {
   }
 }
 
+
+function displayPrivateLink(privacy) {
+  const urlBusiness = "https://www.crunchbase.com/organization/";
+  const link = urlBusiness + privacy;
+  
+  detailsButton.addEventListener('click', function(tab) {
+    window.open(link)
+    console.log('clicked')
+  });
+}
+
 function displayProfileLink(yahooCode) {
   const urlBusiness = "https://finance.yahoo.com/quote/";
   const urlProfiledata = "/profile";
@@ -523,7 +544,7 @@ function displayProfileLink(yahooCode) {
     window.open(link)
     console.log('clicked')
   });
-  }
+}
 
   function displayEsgLink(yahooCode) {
     const urlBusiness = "https://finance.yahoo.com/quote/";
