@@ -1,11 +1,17 @@
 import regeneratorRuntime from 'regenerator-runtime/runtime';
-import {db} from './background.js';
-import {checkBusinessData} from './background.js';
-import {auth} from 'firebase/auth';
+import {findWebsiteName} from './general.js';
 import $ from 'jquery';
-
-//import { getUserID } from './background.js';
 import * as firebase from 'firebase/app'
+import {auth} from 'firebase/auth';
+import {firestore} from 'firebase/firestore'
+
+var config = {
+  apiKey: '',
+  authDomain: 'sustainability-4ae3a.firebaseapp.com',
+  projectId: 'sustainability-4ae3a'
+  };
+firebase.initializeApp(config);
+let db = firebase.firestore();
 
 const colors = {
   "requested": "#afafaf"
@@ -19,25 +25,29 @@ const trophies ={
   "vegan": "great vegan options"
 };
 
-chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
 
   // identify website
   var currentTab = tabs[0]
   var currentURL = currentTab.url;
-  let websiteName = findWebsiteName(currentURL);
+  const websiteName = await findWebsiteName(currentURL);
   
   chrome.storage.sync.get(websiteName, async function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
     let results = await result[websiteName];
     if(results) {
       console.log('displaying content from stroage')
+      console.log('results in popup from storage are ' + JSON.stringify(results));
       displayContent (websiteName, results)
     } else {
-      let brand = {"name": websiteName, "website": websiteName};
+      console.log('no data in storage');
+      let brand = {};
+      brand.name = websiteName;
+      brand.website = websiteName;
       console.log(brand)
       let results2 = await checkBusinessData(brand);
       console.log("results2 from DB are : " + JSON.stringify(results2));
-      displayContent (await results2);
+      displayContent (websiteName, results2);
     }
   });
 })
@@ -136,7 +146,7 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
       requestButton1.innerHTML = "Requested";
       requestButton1.disabled = true;
       requestButton1.style.backgroundColor = colors.requested;
-      registerDemand(brandDocId,displayedQuestion1,fullid);
+      registerDemand(brandDocId,displayedQuestion1,fullid,collection);
     });
     }
 
@@ -153,7 +163,7 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
         requestButton2.innerHTML = "Requested";
         requestButton2.disabled = true;
         requestButton2.style.backgroundColor = colors.requested;
-        registerDemand(brandDocId,displayedQuestion1,fullid);
+        registerDemand(brandDocId,displayedQuestion1,fullid,collection);
       });
       }
       if (demandsResults[2]) { 
@@ -178,7 +188,7 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
               demandResult3.innerHTML = answeredQuestion.question
               requestButton3.innerHTML = "Request"
               requestButton3.addEventListener('click', function(tab) {
-                registerDemand(brandDocId,answeredQuestion,fullid);
+                registerDemand(brandDocId,answeredQuestion,fullid,collection);
                 requestButton3.innerHTML = "Requested";
                 requestButton3.disabled = true;
                 requestButton3.style.backgroundColor = colors.requested;
@@ -321,7 +331,7 @@ function registerNewBrand(websiteName, name, customDemand, fullid, collection) {
     name: websiteName,
     small_business: 'new',
     websites: [websiteName],
-    name: name
+    name: websiteName
   }).then(function(docRef) {
     let questionRef = db.collection('brands').doc(docRef.id).collection(collection);
     questionRef.add({
@@ -471,28 +481,6 @@ async function validateWording (customTrophies) {
   }
 }
 
-/*
-async function checkLanguage(customTrophies) {
-    var count = 0;
-    const forbidden = ["suck","fuck","dick","bowls","ass","pute","cul","chienne","mère","fils de","cock", "bitch", "salope", "cunt"]
-    const nb2 = forbidden.length;
-      console.log('checking text' + JSON.stringify(customTrophies.text));
-      var languageIssue = "";
-      for (let i = 0; i < nb2; i ++) {
-        if (customTrophies.includes(forbidden[i]) == true ) {
-          console.log('checking words' + i)
-          languageIssue = "language";
-          console.log('language issue');
-          if (count == nb2 -1 && languageIssue == "") {
-            languageIssue = "none";
-          }
-        }
-      }
-  return languageIssue
-}
-*/
-
-
 //functions esg
 function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
@@ -548,22 +536,6 @@ function displayProfileLink(yahooCode) {
     });
     }
 
-
-// functions others
-function findWebsiteName(currentURL) {
-  const urlArray = currentURL.split('/');
-  const name = urlArray[2];
-  var website = name;
-  if (name.includes("www.") == true) {
-    website = name.replace("www.","");
-  }
-  const websiteFullArray = website.split(".")
-  const websiteArray = [websiteFullArray[0], websiteFullArray[1]]
-  const websiteName = websiteArray.join('.');
-  
-return websiteName;
-}
-
 async function login() {
   chrome.identity.getAuthToken({interactive: true}, function(token) {
   if (chrome.runtime.lastError) {
@@ -583,4 +555,91 @@ async function login() {
   return status;
 });
 return true
+}
+
+async function checkBusinessData(brand) {
+  try {   
+    const matchedBusiness = await checkBrand(brand);
+    const yahooCode = matchedBusiness.business_ref;
+    console.log('yahoo code is ' + yahooCode)
+
+    if (!yahooCode || yahooCode.length < 1) {
+      console.log('no business ref found for this brand')
+      var finalBusiness = matchedBusiness;
+      finalBusiness.new_business = false;
+      finalBusiness.hasBusiness_ref = false;
+      finalBusiness.hasEsg = false;
+    } else {
+      let businessQuery = db.collection('businesses').where('yahoo_uid', '==',  yahooCode);
+      let businessSnapshot = await businessQuery.get();        
+      if (businessSnapshot.empty) {
+        console.log('scraper for business needed');
+        var finalBusiness = matchedBusiness;
+        finalBusiness.new_business = false;
+        finalBusiness.hasBusiness_ref = false;
+        finalBusiness.hasEsg = false;
+        finalBusiness.name = matchedBusiness.business_name;
+        finalBusiness.brand_name = matchedBusiness.name  
+      } else { 
+        businessSnapshot.forEach(doc => {
+          finalBusiness = doc.data();
+          finalBusiness.new_business = false;
+          finalBusiness.business_ref = matchedBusiness.yahoo_uid;
+          finalBusiness.brand_name = matchedBusiness.name;
+          finalBusiness.docId = matchedBusiness.docId;
+          finalBusiness.hasBusiness_ref = true;
+          finalBusiness.new_brand =  matchedBusiness.new_brand
+          const esg = finalBusiness.yahoo_esg;
+            if ((!esg) || (esg.length < 1)) {
+              finalBusiness.hasEsg = false;
+            } else {
+              finalBusiness.hasEsg = true;
+            }
+        })
+      }
+    }
+  } catch(error) {
+    console.log(error);
+  }
+  console.log('finalBusiness is : ' + JSON.stringify(finalBusiness));
+  return finalBusiness
+}
+//module.exports = { checkBusinessData };
+
+
+async function checkBrand(brand) {
+  try {
+    const websiteName = brand.website;
+    console.log('brand: ' + brand+' websiteName: ' + websiteName);
+    let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
+    let querySnapshot = await brandQuery.get();
+    if (querySnapshot.empty) {
+      console.log('brand does not exist in db');
+      brand.new_brand = true;        
+    } else {
+      brand.new_brand = false;     
+      querySnapshot.forEach(doc => { //if brand exists
+        const businessRef = doc.data().business_ref
+        const businessName = doc.data().business_name
+        const brandDocId = doc.id;
+        brand.small_business = doc.data().small_business
+        brand.docId = brandDocId;
+        console.log('brand extracted is: ' + JSON.stringify(brand));
+        if((!businessRef) || businessRef.empty) {
+          console.log('this brand has no business ref')
+          brand.hasEsg = false;
+          brand.business_ref = "";      
+        } else{
+          brand.business_ref = businessRef;
+          brand.business_name = businessName;
+          brand.hasBusiness_ref = true;
+          console.log('brand exists and has business ref')
+        }
+      })
+    }
+  } catch(error) {
+    console.log(error)
+  }
+console.log('brand is : ' + JSON.stringify(brand));
+return brand;
 }

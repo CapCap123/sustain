@@ -5,19 +5,17 @@ import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {auth} from 'firebase/auth'
 import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
+import {findWebsiteName} from './general.js';
 
 var config = {
   apiKey: '',
   authDomain: 'sustainability-4ae3a.firebaseapp.com',
   projectId: 'sustainability-4ae3a'
   };
+
 firebase.initializeApp(config);
 let db = firebase.firestore();
 module.exports = { db };
-
-//let authUser = firebase.auth();
-//module.exports = {authUser};
-
 
 chrome.tabs.onActivated.addListener(function (tabId, windowId) { 
   //alert('tab activated');
@@ -33,9 +31,8 @@ async function updateBadge() {
   chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, async function(tabs) {
     const currentTab = tabs[0];
     if(currentTab) {
-    //alert(JSON.stringify(currentTab));
     const currentURL = currentTab.url;
-    const websiteName = findWebsiteName(currentURL);
+    const websiteName = await findWebsiteName(currentURL);
 
     chrome.storage.sync.get(websiteName, async function(result) {
       //alert( websiteName + " results retrieved from storage in BG is " + result[websiteName]);
@@ -63,23 +60,6 @@ async function updateBadge() {
   })
 }
 })
-}
-
-// function website name
-function findWebsiteName(currentURL) {
-  const urlArray = currentURL.split('/');
-  const name = urlArray[2];
-
-  var website = name;
-  if (name.includes("www.") == true) {
-    website = name.replace("www.","");
-  }
-
-  const websiteFullArray = website.split(".")
-  const websiteArray = [websiteFullArray[0], websiteFullArray[1]]
-  const websiteName = websiteArray.join('.');
-  
-return websiteName;
 }
 
 // function website name
@@ -154,13 +134,13 @@ async function checkBrand(brand) {
       console.log('brand does not exist in db');
       brand.new_brand = true;        
     } else {
+      console.log('brand exists in db');
       brand.new_brand = false;     
       querySnapshot.forEach(doc => { //if brand exists
         const businessRef = doc.data().business_ref
         const businessName = doc.data().business_name
-        const brandDocId = doc.id;
         brand.small_business = doc.data().small_business
-        brand.docId = brandDocId;
+        brand.docId = doc.id;
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref')
@@ -212,7 +192,7 @@ function setBadge(results) {
 // chrome storage
 chrome.storage.sync.getBytesInUse (null, function (result) {
   console.log('bytes in use in sync: ' + result);
-  if (result < 0.8 * 102400) {
+  if (result < 0.000000008 * 102400) {
     console.log('there is room in sync storage');
   } else { 
     chrome.storage.sync.clear(function() {
@@ -223,7 +203,7 @@ chrome.storage.sync.getBytesInUse (null, function (result) {
 
 chrome.storage.local.getBytesInUse (null, function (result) {
   console.log('bytes in use in local: ' + result);
-  if (result < 0.8 * 5242880) {
+  if (result < 0.00000008 * 5242880) {
     console.log('there is room in local storage');
   } else { 
     chrome.storage.local.clear(function() {
