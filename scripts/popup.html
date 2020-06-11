@@ -48,38 +48,28 @@
           <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
             <button class="dropdown-item" id="option1" type="button"></button>
             <div class="dropdown-divider"></div>
-            <button class="dropdown-item" id="createDemand" type="button">Create my own demand</button>
+            <button class="dropdown-item" id="createDemand" type="button">Create a new demand</button>
           </div>
         </div>
       </div>
       <div class="panelDemand2" id="demandsInput">
-      <div class="panel-body" id="postDemandResultsCustom">Create a new demand here:</div>
-      <input type="text" id="inputDemand" name="demand" class="form-control">
+      <div class="panel-body" id="postDemandResultsCustom">Create a new demand</div>
+      <input type="text" id="inputDemand" name="demand" class="form-control" aria-describedby="emailHelp">
+      <small id="emailHelp" class="form-text text-muted">This business deserves support because ...?</small>
       <button type="button" class="btn-request" id="inputButton">Submit</button>
     </div>
       </div>
     </div>
 
       <div class="panelTrophies" id="trophies">
-        <h1 id="title">Trophies old</h1>
-        <div class="panelTrophies2" id="trophies1">
-          <div class="panel-body" id="postTrophiesResults">Vegetarian restaurant</div>
-          <div class="btn-group">
-            <button type="button" class="btn-upvote"> Upvote </button>
-            <button type="button" class="btn-downvote">Downvote</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="panelTrophies" id="trophies">
         <h1 id="title">Trophies</h1>
-        <div class="panelTrophies2" id="trophie1">
+        <div class="panelTrophies2" id="trophies1">
           <div class="panel-body" id="postTrophiesResults1"></div>
-          <button type="button" class="btn-request" id="requestButton1"></button>
+          <button type="button" class="btn-request" id="requestTButton1"></button>
         </div>
-        <div class="panelTrophies2" id="panelTrophies2">
-        <div class="panel-body" id="postDemandResults2"></div>
-          <button type="button" class="btn-request" id="requestButton2"></button>
+        <div class="panelTrophies2" id="trophies2">
+        <div class="panel-body" id="postTrophiesResults2"></div>
+          <button type="button" class="btn-request" id="requestTButton2"></button>
       </div>
       <div class="panelTrophies2" id="trophiesDropdown">
         <div class="panel-body" id="postDropdown">Something else?</div>
@@ -90,14 +80,15 @@
           <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
             <button class="dropdown-item" id="option1" type="button"></button>
             <div class="dropdown-divider"></div>
-            <button class="dropdown-item" id="createDemand" type="button">Create my own demand</button>
+            <button class="dropdown-item" id="createDemand" type="button">Create a new trophy</button>
           </div>
         </div>
       </div>
       <div class="panelTrophie2" id="trophiesInput">
-      <div class="panel-body" id="postTrophiesResultsCustom">Create a new demand here:</div>
-      <input type="text" id="inputTrophies" name="demand" class="form-control">
-      <button type="button" class="btn-request" id="inputButton">Submit</button>
+      <div class="panel-body" id="postTrophiesResultsCustom">Create a new trophy</div>
+      <input type="text" id="inputTrophies" name="demand" class="form-control" aria-describedby="emailHelp">
+      <small id="emailHelp" class="form-text text-muted">This business deserves support because ...?</small>
+      <button type="button" class="btn-request" id="inputTButton">Submit</button>
     </div>
       </div>
     </div>

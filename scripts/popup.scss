@@ -40,16 +40,6 @@
     margin: 3px;
   }
 
-  .btn-request {
-    font-size: 0.8rem;
-    border-style: none;
-    border-radius: 3px;
-    background-color: dodgerblue;
-    color:black;
-    padding: 5px;
-    margin: 3px;
-  }
-
   .panel {
     background-color: rgb(245, 245, 245);
     color: #344;
@@ -103,8 +93,9 @@
     display: none;
   }
 
-  .form-control-file{
+  .form-control{
     font-size: 0.8rem;
+    line-height: 0.9rem;
   }
 
   .text{

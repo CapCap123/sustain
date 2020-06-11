@@ -212,7 +212,7 @@ function setBadge(results) {
 // chrome storage
 chrome.storage.sync.getBytesInUse (null, function (result) {
   console.log('bytes in use in sync: ' + result);
-  if (result < 0.0000008 * 102400) {
+  if (result < 0.8 * 102400) {
     console.log('there is room in sync storage');
   } else { 
     chrome.storage.sync.clear(function() {
@@ -223,7 +223,7 @@ chrome.storage.sync.getBytesInUse (null, function (result) {
 
 chrome.storage.local.getBytesInUse (null, function (result) {
   console.log('bytes in use in local: ' + result);
-  if (result < 0.0000008 * 5242880) {
+  if (result < 0.8 * 5242880) {
     console.log('there is room in local storage');
   } else { 
     chrome.storage.local.clear(function() {
