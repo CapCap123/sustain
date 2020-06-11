@@ -4,6 +4,7 @@ import $ from 'jquery';
 import * as firebase from 'firebase/app'
 import {auth} from 'firebase/auth';
 import {firestore} from 'firebase/firestore'
+import * as bootstrap from 'bootstrap'
 
 var config = {
   apiKey: '',
@@ -52,9 +53,6 @@ chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
   });
 })
 
-
-// massive function display
-
 async function displayContent (websiteName, results) {
   let user = firebase.auth().currentUser; 
   const detailsButton = document.getElementById('detailsButton');
@@ -65,7 +63,6 @@ async function displayContent (websiteName, results) {
 
   console.log('content to display: ' + JSON.stringify(results))
   console.log("results are " + JSON.stringify(results));
-  let brandDocId = results.docId;
 
   // display esg
   let answer = await displayEsg(results);
@@ -75,17 +72,20 @@ async function displayContent (websiteName, results) {
   firebase.auth().onAuthStateChanged(async function(user) {
     if (user) {
       user.providerData.forEach(async function (profile) {
-        let fullid = profile.uid;
-        displayDemand(results, websiteName, name, fullid, demandPanel);
-        displayTrophies(results, websiteName, name, fullid, trophiesPanel);
+        const fullid = profile.uid;
+        console.log("userID: " + fullid );
+        displayDemand(results, websiteName, fullid);
+        displayTrophies(results, websiteName, fullid);
       })
     } else {
+      console.log('user login');
       login()
     }
 })
-  
 }
-async function displayDemand(results, websiteName, name, fullid, demandPanel) {
+
+// massive display functions 
+async function displayDemand(results, websiteName, fullid) {
   const demandPanel1 = document.getElementById('demands1');
   const demandResult1 = document.getElementById('postDemandResults1');
   const requestButton1 = document.getElementById("requestButton1");
@@ -97,38 +97,46 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
   const requestButton3 = document.getElementById("requestButton3");
 
   const demandPanelDropdown = document.getElementById('demandsDropdown');
-  const dropdownItems = document.querySelector('.dropdown-menu');
-  const demandOption1 = document.getElementById('option1');
+  const demandOption1 = document.getElementById('demandOption');
   //const demandOption2 = document.getElementById('option2');
   //const demandOption3 = document.getElementById('option3');
-  var dropdownButtons = [demandOption1];
+  const dropdownButtons = [demandOption1];
   const demandCreate =  document.getElementById('createDemand');
 
   const demandPanelInput = document.getElementById('demandsInput');
   const inputButton = document.getElementById('inputButton');
   const demandresultsCustom = document.getElementById('postDemandResultsCustom');
-  const demandCustomRequest = $("input:text");
+  const demandCustomRequest = $("input[name*='demands']")
 
   const collection = 'questions';
-  const demandsResults = await publishContent(results,fullid,collection);
-  demandPanel.style.display = "block";
-  demandPanel3.style.display = "none";
+  const demandsResults = await publishContent(results, fullid ,collection);
+  const demandPanel = document.getElementById('demands');
+  demandPanel.style.display = "block"
+  demandPanel3.style.display = "none"
+
+
+  let brandDocId = results.docId;
+  console.log(JSON.stringify(results) + 'results before pusblishing demands')
 
   inputButton.addEventListener('click', function(tab) {
     let customDemand = demandCustomRequest.val();
-    if (customDemand.length > 20 && customDemand.length < 50 ) {
-      if (results.new_brand == true) {
-        registerNewBrand(websiteName, name, customDemand, fullid, collection)
+    if (customDemand.length > 20 && customDemand.length < 40 ) {
+      if (!results.docId) {
+        registerNewBrand(websiteName, customDemand, fullid, collection)
       } else {
-      registerNewDemand(brandDocId, customDemand ,fullid, collection);
+        registerNewDemand(brandDocId, customDemand ,fullid, collection);
       }
-    demandPanelInput.style.display = "none"
-    demandPanel3.style.display = "block"
-    demandResult3.innerHTML = customDemand;
-    requestButton3.innerHTML = "Requested";
-    requestButton3.disabled = true;
-    requestButton3.style.backgroundColor = colors.requested;
-    } 
+      demandPanelInput.style.display = "none";
+      demandPanel3.style.display = "block";
+      demandResult3.innerHTML = customDemand;
+      requestButton3.innerHTML = "Requested";
+      requestButton3.disabled = true;
+      requestButton3.style.backgroundColor = colors.requested;
+    } else if (customDemand.length > 15) {
+      alert('this is not descriptive enough');
+    } else {
+      alert('Try to make it a bit shorter');
+    }
   })
 
   if(demandsResults[0]) {
@@ -146,7 +154,7 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
       requestButton1.innerHTML = "Requested";
       requestButton1.disabled = true;
       requestButton1.style.backgroundColor = colors.requested;
-      registerDemand(brandDocId,displayedQuestion1,fullid,collection);
+      registerDemand(brandDocId,displayedQuestion1, fullid, collection);
     });
     }
 
@@ -163,7 +171,7 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
         requestButton2.innerHTML = "Requested";
         requestButton2.disabled = true;
         requestButton2.style.backgroundColor = colors.requested;
-        registerDemand(brandDocId,displayedQuestion1,fullid,collection);
+        registerDemand(brandDocId,displayedQuestion1, fullid, collection);
       });
       }
       if (demandsResults[2]) { 
@@ -182,20 +190,20 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
             let optionButton = dropdownButtons[i-2];
             optionButton.innerHTML = answeredQuestion.question;
             optionButton.style.display = "block";
+            console.log('optionButton is displayed');
             optionButton.addEventListener('click', function(tab) {
               demandPanelDropdown.style.display = "none"
               demandPanel3.style.display = "block"
               demandResult3.innerHTML = answeredQuestion.question
               requestButton3.innerHTML = "Request"
               requestButton3.addEventListener('click', function(tab) {
-                registerDemand(brandDocId,answeredQuestion,fullid,collection);
+                registerDemand(brandDocId,answeredQuestion, fullid, collection);
                 requestButton3.innerHTML = "Requested";
                 requestButton3.disabled = true;
                 requestButton3.style.backgroundColor = colors.requested;
               })
             })
           } else {
-            option.style.display = "none";
           }
         }
       } else {
@@ -216,66 +224,74 @@ async function displayDemand(results, websiteName, name, fullid, demandPanel) {
   }
 }
 
-async function displayTrophies(results, websiteName, name, fullid, trophiesPanel) {
+async function displayTrophies(results, websiteName, fullid,) {
   const trophiesPanel1 = document.getElementById('trophies1');
   const trophiesResult1 = document.getElementById('postTrophiesResults1');
   const requestTButton1 = document.getElementById("requestTButton1");
   const trophiesPanel2 = document.getElementById('trophies2');
-  const trophiesResult2 = document.getElementById('postDemandResults2')
+  const trophiesResult2 = document.getElementById('postTrophiesResults2')
   const requestTButton2 = document.getElementById("requestTButton2");
 
   const trophiesPanelDropdown = document.getElementById('trophiesDropdown');
-  const dropdownItems = document.querySelector('.dropdown-menu');
-  const trophiesOption1 = document.getElementById('option1');
+  const trophiesOption1 = document.getElementById('trophiesOption');
   //const demandOption2 = document.getElementById('option2');
   //const demandOption3 = document.getElementById('option3');
-  var dropdownButtons = [trophiesOption1];
-  const trophiesCreate =  document.getElementById('createTrophies');
+  const dropdownTrophies = [trophiesOption1];
+  const trophiesCreate =  document.getElementById('createTrophy');
 
   const trophiesPanelInput = document.getElementById('trophiesInput');
   const inputTButton = document.getElementById('inputTButton');
   const trophiesresultsCustom = document.getElementById('postTrophiesResultsCustom');
-  const trophiesCustomRequest = $("input:text");
+  const inputTrophies = document.getElementById('inputTrophies');
+  const trophiesCustomRequest = $("input[name*='trophies']")
 
   const collection = 'trophies';
-  const trophiesResults = await publishContent(results,fullid,collection);
+  const trophiesResults = await publishContent(results, fullid ,collection);
+  const trophiesPanel = document.getElementById('trophies');
   trophiesPanel.style.display = "block";
+
+  let brandDocId = results.docId;
+  console.log(JSON.stringify(results) + 'results before pusblishing trophies')
+
 
   inputTButton.addEventListener('click', async function(tab) {
     let customTrophies = trophiesCustomRequest.val();
-    let language = await validateWording(customTrophies);
-    console.log('language in function is: ' + JSON.stringify(language));
-    if (language == "none") {
-      if (results.new_brand == true) {
-        registerNewBrand(websiteName, name, customTrophy, fullid, collection)
+    alert('trophies: ' + customTrophies)
+    if (customTrophies.length > 10 && customTrophies.length < 35 ) {
+      if (!results.docId) {
+        registerNewBrand(websiteName, customTrophies, fullid, collection)
       } else {
-      registerNewDemand(brandDocId, customTrophy ,fullid, collection);
+        registerNewDemand(brandDocId, customTrophies ,fullid, collection);
       }
-    trophiesPanelInput.style.display = "none"
-    trophiesPanel2.style.display = "block"
-    trophiesResult2.innerHTML = customTrophy;
-    requestButton2.innerHTML = "Requested";
-    requestButton2.disabled = true;
-    requestButton2.style.backgroundColor = colors.requested;
+      trophiesPanelInput.style.display = "none";
+      trophiesPanel2.style.display = "block";
+      trophiesResult2.innerHTML = customTrophies;
+      requestTButton2.innerHTML = "Requested";
+      requestTButton2.disabled = true;
+      requestTButton2.style.backgroundColor = colors.requested;
+    } else if (customTrophies.length < 10) {
+      alert('this is not descriptive enough');
+    } else {
+      alert('Try to make it a bit shorter');
     }
   })
 
   if(trophiesResults[0]) {
-    console.log("ordered results are" + JSON.stringify(demandsResults));
+    console.log("ordered results are" + JSON.stringify(trophiesResults));
     let displayedTrophy = trophiesResults[0];
     trophiesResult1.innerHTML = displayedTrophy.question;
-
+    trophiesPanel1.style.display = "block"
     if (displayedTrophy.requested == 1) {
-      requestButton1.innerHTML = "Requested";
-      requestButton1.disabled = true;
-      requestButton1.style.backgroundColor = colors.requested;
+      requestTButton1.innerHTML = "Requested";
+      requestTButton1.disabled = true;
+      requestTButton1.style.backgroundColor = colors.requested;
     } else {
-    requestButton1.innerHTML = "Request";
-    requestButton1.addEventListener('click', async function(tab) {
-      requestButton1.innerHTML = "Requested";
-      requestButton1.disabled = true;
-      requestButton1.style.backgroundColor = colors.requested;
-      registerDemand(brandDocId,displayedQuestion1,fullid,collection);
+    requestTButton1.innerHTML = "Request";
+    requestTButton1.addEventListener('click', async function(tab) {
+      requestTButton1.innerHTML = "Requested";
+      requestTButton1.disabled = true;
+      requestTButton1.style.backgroundColor = colors.requested;
+      registerDemand(brandDocId,displayedTrophy, fullid, collection);
     });
     }
 
@@ -290,30 +306,30 @@ async function displayTrophies(results, websiteName, name, fullid, trophiesPanel
           trophiesPanelDropdown.style.display = "none"
         })
         for (let i = 1; i < 2; i ++) {
-          if (demandsResults[i]) {
+          if (trophiesResults[i]) {
             let answeredTrophy = trophiesResults[i];
-            let optionButton = dropdownButtons[i-2];
+            let optionButton = dropdownTrophies[i-1];
             optionButton.innerHTML = answeredTrophy.question;
             optionButton.style.display = "block";
             optionButton.addEventListener('click', function(tab) {
               trophiesPanelDropdown.style.display = "none"
               trophiesPanel2.style.display = "block"
-              trophiesResult2.innerHTML = answeredQuestion.question
-              requestButton2.innerHTML = "Request"
-              requestButton2.addEventListener('click', function(tab) {
-                registerDemand(brandDocId,answeredQuestion,fullid, collection);
-                requestButton3.innerHTML = "Requested";
-                requestButton3.disabled = true;
-                requestButton3.style.backgroundColor = colors.requested;
+              trophiesResult2.innerHTML = answeredTrophy.question
+              requestTButton2.innerHTML = "Request"
+              requestTButton2.addEventListener('click', function(tab) {
+                registerDemand(brandDocId,answeredTrophy, fullid, collection);
+                requestTButton2.innerHTML = "Requested";
+                requestTButton2.disabled = true;
+                requestTButton2.style.backgroundColor = colors.requested;
               })
             })
           } else {
-            option.style.display = "none";
           }
         }
       } else {
+        trophiesPanel2.style.display = "none";
         trophiesPanelDropdown.style.display = "none";
-        dtrophiesPanelInput.style.display = "block"
+        trophiesPanelInput.style.display = "block";
       }
   } else {
     console.log('no trophy to show');
@@ -325,21 +341,21 @@ async function displayTrophies(results, websiteName, name, fullid, trophiesPanel
 }
 
 // demand functions
-function registerNewBrand(websiteName, name, customDemand, fullid, collection) {
+function registerNewBrand(websiteName, customDemand, fullid, collection) {
   let brandRef = db.collection('brands');
   let addBrand = brandRef.add({
     name: websiteName,
     small_business: 'new',
     websites: [websiteName],
-    name: websiteName
   }).then(function(docRef) {
-    let questionRef = db.collection('brands').doc(docRef.id).collection(collection);
+    let ref = docRef.id
+    let questionRef = db.collection('brands').doc(ref).collection(collection);
     questionRef.add({
       upvote: 1,
       question: customDemand,
     }).then(function(docRef2) {
-      let ref = docRef2.id;
-      let demandRef = db.collection('brands').doc(docRef.id).collection(collection).doc(ref).collection('demands').doc(fullid);
+      let ref2 = docRef2.id;
+      let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(fullid);
       demandRef.set({
         upvote: 1 
       })
@@ -347,7 +363,7 @@ function registerNewBrand(websiteName, name, customDemand, fullid, collection) {
   })
 }
 function registerNewDemand(brandDocId,customDemand, fullid, collection) {
-  let questionRef = db.collection('brands').doc(brandDocId).collection('questions');
+  let questionRef = db.collection('brands').doc(brandDocId).collection(collection);
   questionRef.add({
     upvote: 1,
     question: customDemand,
@@ -374,12 +390,12 @@ function registerDemand(brandDocId, displayedQuestion1, fullid, collection) {
   }, { merge: true });
 }
 
-async function publishContent(results,fullid,collection){
+async function publishContent(results, fullid, collection){
   try{
     const brandDocId = results.docId;
     var sortedResults = [];
     if (brandDocId) {
-    var demands = await checkQueries(brandDocId,fullid,collection);
+    var demands = await checkQueries(brandDocId, fullid, collection);
     const nb = demands.length;
     var demandsResults = [];
     console.log('demands in publish' + JSON.stringify(demands));
@@ -407,6 +423,7 @@ async function checkQueries(brandDocId, fullid, collection) {
     var demands2 = [];
     let demands = await checkDemands(brandDocId,collection);
     console.log('demands in check queries' + JSON.stringify(demands));
+    console.log(brandDocId+collection+ ' fullid' + fullid);
     for (let i = 0; i < demands.length; i ++) {
       let demand2 = demands[i];
       let question = demand2.questionId;
@@ -454,7 +471,8 @@ async function checkDemands(brandDocId,collection){
 
 async function validateWording (customTrophies) {
   try {
-  console.log('rying to check language')
+  console.log('trying to check language')
+  console.log(customTrophies);
   //const languageIssue = await checkLanguage(customTrophies);
   //console.log("language issue in validate W: " + JSON.stringify(languageIssue));
     //if (languageIssue == 'language') {

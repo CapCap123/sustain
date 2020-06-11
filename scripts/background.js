@@ -1,6 +1,5 @@
 
 import * as firebase from 'firebase/app'
-import * as bootstrap from 'bootstrap'
 import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
 import {auth} from 'firebase/auth'
@@ -137,13 +136,14 @@ async function checkBrand(brand) {
       console.log('brand exists in db');
       brand.new_brand = false;     
       querySnapshot.forEach(doc => { //if brand exists
-        const businessRef = doc.data().business_ref
-        const businessName = doc.data().business_name
-        brand.small_business = doc.data().small_business
+        const businessRef = doc.data().business_ref;
+        const businessName = doc.data().business_name;
+        brand.small_business = doc.data().small_business;
         brand.docId = doc.id;
+        brand.private = doc.data().private;
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
-          console.log('this brand has no business ref')
+          console.log('this brand has no business ref');
           brand.hasEsg = false;
           brand.business_ref = "";      
         } else{
