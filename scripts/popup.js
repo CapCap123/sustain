@@ -54,7 +54,6 @@ async function displayContent (websiteName, results) {
   trophiesPanel.style.display = "none";
 
   console.log('content to display: ' + JSON.stringify(results))
-  console.log("results are " + JSON.stringify(results));
 
   // display esg
   let answer = await displayEsg(results);
@@ -322,27 +321,39 @@ async function displayTrophies(results, websiteName, fullid,) {
 }
 
 // demand functions
-function registerNewBrand(websiteName, customDemand, fullid, collection) {
-  let brandRef = db.collection('brands');
-  let addBrand = brandRef.add({
-    name: websiteName,
-    small_business: 'new',
-    websites: [websiteName],
-  }).then(function(docRef) {
-    let ref = docRef.id
-    let questionRef = db.collection('brands').doc(ref).collection(collection);
-    questionRef.add({
-      upvote: 1,
-      question: customDemand,
-    }).then(function(docRef2) {
-      let ref2 = docRef2.id;
-      let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(fullid);
-      demandRef.set({
-        upvote: 1 
+async function registerNewBrand(websiteName, customDemand, fullid, collection) {
+  let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
+    let querySnapshot = await brandQuery.get();
+    if (querySnapshot.empty) {
+      console.log('I confirm there is still no brand here');
+      let brandRef = db.collection('brands');
+      let addBrand = brandRef.add({
+        name: websiteName,
+        small_business: 'new',
+        websites: [websiteName],
+      }).then(function(docRef) {
+        let ref = docRef.id
+        let questionRef = db.collection('brands').doc(ref).collection(collection);
+        questionRef.add({
+          upvote: 1,
+          question: customDemand,
+        }).then(function(docRef2) {
+          let ref2 = docRef2.id;
+          let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(fullid);
+          demandRef.set({
+            upvote: 1 
+          })
+        })
       })
-    })
-  })
+    } else {
+      console.log('brand has been registered in between');
+      querySnapshot.forEach(doc => { //if brand exists
+        let brandDocId = doc.id;
+        registerNewDemand(brandDocId,customDemand, fullid, collection)
+      })
+    }
 }
+
 function registerNewDemand(brandDocId,customDemand, fullid, collection) {
   let questionRef = db.collection('brands').doc(brandDocId).collection(collection);
   questionRef.add({

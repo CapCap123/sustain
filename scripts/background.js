@@ -17,7 +17,7 @@ let db = firebase.firestore();
 module.exports = { db };
 
 chrome.tabs.onActivated.addListener(function (tabId, windowId) { 
-  //alert('tab activated');
+  console.log('tab activated');
   let badgeUpdated = updateBadge();
   chrome.tabs.onUpdated.addListener(function(changeInfo ,tabs) {
         //alert(changeInfo);
@@ -27,8 +27,11 @@ chrome.tabs.onActivated.addListener(function (tabId, windowId) {
 });
 
 async function updateBadge() {
+  console.log('updating badge');
   chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, async function(tabs) {
+    console.log('tab query');
     const currentTab = tabs[0];
+    console.log(JSON.stringify(currentTab));
     if(currentTab) {
     const currentURL = currentTab.url;
     const websiteName = await findWebsiteName(currentURL);
@@ -36,8 +39,8 @@ async function updateBadge() {
     chrome.storage.sync.get(websiteName, async function(result) {
       //alert( websiteName + " results retrieved from storage in BG is " + result[websiteName]);
       let results = await result[websiteName];
-      if(results && (results.new_brand != "new")) {
-        console.log(results);
+      if(results && (results.new_brand != true)) {
+        console.log('bg, new_brand = new: ' + JSON.stringify(results));
 
         let badgeColor = setBadge(await results);
         chrome.browserAction.setBadgeText({text: "   "});
@@ -46,13 +49,14 @@ async function updateBadge() {
         //alert('results not yet in storage');
         var brand = await checkBrandName(websiteName);
         const results = await checkBusinessData(brand);
+        console.log('bg from DB: ' + JSON.stringify(results));
 
         let badgeColor = setBadge(await results);
         chrome.browserAction.setBadgeText({text: "   "});
         chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
 
         chrome.storage.sync.set({[websiteName]: results}, function() {
-          //alert("Value in BG of " + websiteName + " is set to " + results);
+          console.log("Value in BG of " + websiteName + " is set to " + JSON.stringify(results));
         });
       }
     return true
@@ -133,14 +137,14 @@ async function checkBrand(brand) {
       console.log('brand does not exist in db');
       brand.new_brand = true;        
     } else {
-      console.log('brand exists in db');
-      brand.new_brand = false;     
+      console.log('brand exists in db');  
       querySnapshot.forEach(doc => { //if brand exists
         const businessRef = doc.data().business_ref;
         const businessName = doc.data().business_name;
         brand.small_business = doc.data().small_business;
         brand.docId = doc.id;
         brand.private = doc.data().private;
+        brand.new_brand = doc.data().small_business;  
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref');
