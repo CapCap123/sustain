@@ -7,7 +7,7 @@ import {firestore} from 'firebase/firestore'
 import * as bootstrap from 'bootstrap'
 
 var config = {
-  apiKey: '',
+  apiKey: 'AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo',
   authDomain: 'sustainability-4ae3a.firebaseapp.com',
   projectId: 'sustainability-4ae3a'
   };
@@ -89,7 +89,11 @@ async function displayDemand(results, websiteName, fullid) {
 
   const demandPanelDropdown = document.getElementById('demandsDropdown');
   const demandOption1 = document.getElementById('demandOption');
-  const dropdownButtons = [demandOption1];
+  const demandOption2 = document.getElementById('demandOption1');
+  const demandOption3 = document.getElementById('demandOption2');
+  const demandOption4 = document.getElementById('demandOption3');
+  const demandOption5 = document.getElementById('demandOption4');
+  const dropdownButtons = [demandOption1,demandOption2,demandOption3,demandOption4,demandOption5];
   const demandCreate =  document.getElementById('createDemand');
 
   const demandPanelInput = document.getElementById('demandsInput');
@@ -170,26 +174,39 @@ async function displayDemand(results, websiteName, fullid) {
           demandPanelInput.style.display = "block"
           demandPanelDropdown.style.display = "none"
         })
-        for (let i = 2; i < 3; i ++) {
+        for (let i = 2; i < 8; i ++) {
+          let optionButton = dropdownButtons[i-2];
           if (demandsResults[i]) {
+            console.log('displaying question: ' + i);
             let answeredQuestion = demandsResults[i];
-            let optionButton = dropdownButtons[i-2];
             optionButton.innerHTML = answeredQuestion.question;
-            optionButton.style.display = "block";
+            if (answeredQuestion.requested == 1) {
+              optionButton.style.color = colors.requested;
+            } else {
+              optionButton.style.display = "block";
+            }
             console.log('optionButton is displayed');
             optionButton.addEventListener('click', function(tab) {
               demandPanelDropdown.style.display = "none"
               demandPanel3.style.display = "block"
               demandResult3.innerHTML = answeredQuestion.question
-              requestButton3.innerHTML = "Request"
-              requestButton3.addEventListener('click', function(tab) {
-                registerDemand(brandDocId,answeredQuestion, fullid, collection);
+              if (answeredQuestion.requested == 1) {
                 requestButton3.innerHTML = "Requested";
                 requestButton3.disabled = true;
                 requestButton3.style.backgroundColor = colors.requested;
-              })
+              } else {
+                requestButton3.innerHTML = "Request"
+                requestButton3.addEventListener('click', function(tab) {
+                  registerDemand(brandDocId,answeredQuestion, fullid, collection);
+                  requestButton3.innerHTML = "Requested";
+                  requestButton3.disabled = true;
+                  requestButton3.style.backgroundColor = colors.requested;
+                })
+              }
             })
           } else {
+            console.log('this last button should not be displatyed');
+            optionButton.remove();
           }
         }
       } else {
@@ -220,7 +237,11 @@ async function displayTrophies(results, websiteName, fullid,) {
 
   const trophiesPanelDropdown = document.getElementById('trophiesDropdown');
   const trophiesOption1 = document.getElementById('trophiesOption');
-  const dropdownTrophies = [trophiesOption1];
+  const trophiesOption2 = document.getElementById('trophiesOption1');
+  const trophiesOption3 = document.getElementById('trophiesOption2');
+  const trophiesOption4 = document.getElementById('trophiesOption3');
+  const trophiesOption5 = document.getElementById('trophiesOption4');
+  const dropdownTrophies = [trophiesOption1,trophiesOption2,trophiesOption3,trophiesOption4,trophiesOption5];
   const trophiesCreate =  document.getElementById('createTrophy');
 
   const trophiesPanelInput = document.getElementById('trophiesInput');
@@ -240,7 +261,7 @@ async function displayTrophies(results, websiteName, fullid,) {
 
   inputTButton.addEventListener('click', async function(tab) {
     let customTrophies = trophiesCustomRequest.val();
-    let languageIssue = await validateWording(customTrophies, 15, 30);
+    let languageIssue = await validateWording(customTrophies, 15, 40);
     if (languageIssue == "none") {
       if (!results.docId) {
         registerNewBrand(websiteName, customTrophies, fullid, collection)
@@ -285,25 +306,38 @@ async function displayTrophies(results, websiteName, fullid,) {
           trophiesPanelInput.style.display = "block"
           trophiesPanelDropdown.style.display = "none"
         })
-        for (let i = 1; i < 2; i ++) {
+        for (let i = 1; i < 7; i ++) {
+          let optionButton = dropdownTrophies[i-1];
           if (trophiesResults[i]) {
             let answeredTrophy = trophiesResults[i];
-            let optionButton = dropdownTrophies[i-1];
             optionButton.innerHTML = answeredTrophy.question;
             optionButton.style.display = "block";
+            if (answeredTrophy.requested == 1) {
+              optionButton.style.color = colors.requested;
+            } else {
+              optionButton.style.display = "block";
+            }
             optionButton.addEventListener('click', function(tab) {
               trophiesPanelDropdown.style.display = "none"
               trophiesPanel2.style.display = "block"
               trophiesResult2.innerHTML = answeredTrophy.question
-              requestTButton2.innerHTML = "Request"
-              requestTButton2.addEventListener('click', function(tab) {
-                registerDemand(brandDocId,answeredTrophy, fullid, collection);
+              if (answeredTrophy.requested == 1) {
                 requestTButton2.innerHTML = "Requested";
                 requestTButton2.disabled = true;
                 requestTButton2.style.backgroundColor = colors.requested;
-              })
+              } else {
+                requestTButton2.innerHTML = "Request"
+                requestTButton2.addEventListener('click', function(tab) {
+                  registerDemand(brandDocId,answeredTrophy, fullid, collection);
+                  requestTButton2.innerHTML = "Requested";
+                  requestTButton2.disabled = true;
+                  requestTButton2.style.backgroundColor = colors.requested;
+                })
+              }
             })
           } else {
+            console.log('this last trophy button should not be displatyed');
+            optionButton.remove();
           }
         }
       } else {
@@ -508,7 +542,7 @@ function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
     if(results.private) {
       let answer =   (
-        results.name + " is a private company. Official risks reports of public companies are ususally not public, or do not exist."
+        results.name + " is a private company. We don't know if they have an ESG risks report."
         ); 
         displayPrivateLink(results.private)
       detailsButton.style.display = "block";
