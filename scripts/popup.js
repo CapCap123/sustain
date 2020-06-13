@@ -250,7 +250,7 @@ async function displayTrophies(results, websiteName, fullid,) {
           trophiesPanelInput.style.display = "block"
           trophiesPanelDropdown.style.display = "none"
         })
-        for (let i = 1; i < 7; i ++) {
+        for (let i = 1; i < 6; i ++) {
           let optionButton = dropdownTrophies[i-1];
           if (trophiesResults[i]) {
             let answeredTrophy = trophiesResults[i];
@@ -491,15 +491,21 @@ function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
     if(results.private) {
       let answer =   (
-        results.name + " is a private company. We don't know if they have an ESG risks report."
+        "This website belongs to: <b>" + results.name + "</b>: a <b>private company</b>.<br>We could not access their ESG risk report."
         ); 
         displayPrivateLink(results.private)
       detailsButton.style.display = "block";
       document.getElementById("postEsgResults").innerHTML = answer;
       return answer
+      } else if (results.local == true) {
+        let answer =  (
+        "This is a <b>local business</b>. ESG risk reports are ususally not available for local businesses."
+        ); 
+        detailsButton.style.display = "none"
+        return answer
     } else {  
-    let answer =  (
-      "We did not find official information about "+ results.name + ", yet."
+      let answer =  (
+      "We do not have official information about this website, yet."
       ); 
       detailsButton.style.display = "none"
       document.getElementById("postEsgResults").innerHTML = answer;
@@ -508,8 +514,8 @@ function displayEsg(results) {
   } else {
     if (results.hasEsg == false) {
       let answer = (
-      "This website belongs to "+ results.name + ", which is public" +
-      "<br>" + results.name + " did not make their information public"
+      "This website belongs to <b>"+ results.brand_name + "</b>: a <b>public company</b>." +
+      "<br>Unlike most public companies, <b>their ESG risk report is not available</b> on their profile."
       );
       displayProfileLink(results.yahoo_uid);
       detailsButton.style.display = "block";
@@ -517,9 +523,9 @@ function displayEsg(results) {
       return answer
     } else if (results.hasEsg == true) {
       let answer =  (
-      "This website belongs to " + results.name +
-      ":<br>\u2022 ESG risk score: "+ results.yahoo_esg + "% (" + results.yahoo_percentile +
-      ")<br>\u2022 Environmental risk: "+ results.yahoo_envrisk
+      "This website belongs to <b>" + results.brand_name +
+      "</b>:<br>\u2022 ESG risk: <b>"+ results.yahoo_esg + "%</b> (" + results.yahoo_percentile +
+      ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "</b>."
       );
       displayEsgLink(results.yahoo_uid)
       detailsButton.style.display = "block"
@@ -616,6 +622,7 @@ async function checkBusinessData(brand) {
           finalBusiness.docId = matchedBusiness.docId;
           finalBusiness.hasBusiness_ref = true;
           finalBusiness.new_brand =  matchedBusiness.new_brand
+          finalBusiness.local = matchedBusiness.local;
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -649,11 +656,13 @@ async function checkBrand(brand) {
         const brandDocId = doc.id;
         brand.small_business = doc.data().small_business
         brand.docId = brandDocId;
+        brand.local = doc.data().local; 
+        brand.name = doc.data().name
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref')
           brand.hasEsg = false;
-          brand.business_ref = "";      
+          brand.business_ref = "";  
         } else{
           brand.business_ref = businessRef;
           brand.business_name = businessName;

@@ -110,7 +110,8 @@ async function checkBusinessData(brand) {
           finalBusiness.brand_name = matchedBusiness.name;
           finalBusiness.docId = matchedBusiness.docId;
           finalBusiness.hasBusiness_ref = true;
-          finalBusiness.new_brand =  matchedBusiness.new_brand
+          finalBusiness.new_brand =  matchedBusiness.new_brand;
+          finalBusiness.local = matchedBusiness.local;
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -144,7 +145,9 @@ async function checkBrand(brand) {
         brand.small_business = doc.data().small_business;
         brand.docId = doc.id;
         brand.private = doc.data().private;
-        brand.new_brand = doc.data().small_business;  
+        brand.new_brand = doc.data().small_business; 
+        brand.local = doc.data().local; 
+        brand.name = doc.data().name
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref');
@@ -178,11 +181,14 @@ function setBadge(results) {
       let badgeColor = colors.red;
       return badgeColor
     } else {
-      if (results.yahoo_percentile > 50) {
+      if (results.yahoo_esg < 30) {
+        let badgeColor = colors.green;
+        return badgeColor
+      } else if (results.yahoo_esg <60) {
         let badgeColor = colors.yellow;
         return badgeColor
       } else {
-        let badgeColor = colors.green;
+        let badgeColor = colors.red;
         return badgeColor
       }
     }
