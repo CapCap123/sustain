@@ -7,7 +7,7 @@ import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
 import {findWebsiteName} from './general.js';
 
 var config = {
-  apiKey: '',
+  apiKey: 'AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo',
   authDomain: 'sustainability-4ae3a.firebaseapp.com',
   projectId: 'sustainability-4ae3a'
   };

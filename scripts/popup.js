@@ -131,39 +131,12 @@ async function displayDemand(results, websiteName, fullid) {
 
   if(demandsResults[0]) {
     console.log("ordered results are" + JSON.stringify(demandsResults));
-    let displayedQuestion1 = demandsResults[0];
-    demandResult1.innerHTML = displayedQuestion1.question;
-
-    if (displayedQuestion1.requested == 1) {
-      requestButton1.innerHTML = "Requested";
-      requestButton1.disabled = true;
-      requestButton1.style.backgroundColor = colors.requested;
-    } else {
-    requestButton1.innerHTML = "Request";
-    requestButton1.addEventListener('click', async function(tab) {
-      requestButton1.innerHTML = "Requested";
-      requestButton1.disabled = true;
-      requestButton1.style.backgroundColor = colors.requested;
-      registerDemand(brandDocId,displayedQuestion1, fullid, collection);
-    });
-    }
+    let answeredQuestion = demandsResults[0];
+    displaySection(demandPanel1, demandResult1, requestButton1, answeredQuestion, fullid, collection, brandDocId);
 
     if(demandsResults[1]) {
-      let displayedQuestion1 = demandsResults[1];
-      demandResult2.innerHTML = displayedQuestion1.question;
-      if (displayedQuestion1.requested == 1) {
-        requestButton2.innerHTML = "Requested";
-        requestButton2.disabled = true;
-        requestButton2.style.backgroundColor = colors.requested;
-      } else {
-      requestButton2.innerHTML = "Request";
-      requestButton2.addEventListener('click', async function(tab) {
-        requestButton2.innerHTML = "Requested";
-        requestButton2.disabled = true;
-        requestButton2.style.backgroundColor = colors.requested;
-        registerDemand(brandDocId,displayedQuestion1, fullid, collection);
-      });
-      }
+      let answeredQuestion = demandsResults[1];
+      displaySection(demandPanel2, demandResult2, requestButton2, answeredQuestion, fullid, collection, brandDocId);
       if (demandsResults[2]) { 
         let nb = demandsResults.length;
         demandPanel2.style.display = "block";
@@ -174,7 +147,7 @@ async function displayDemand(results, websiteName, fullid) {
           demandPanelInput.style.display = "block"
           demandPanelDropdown.style.display = "none"
         })
-        for (let i = 2; i < 8; i ++) {
+        for (let i = 2; i < 7; i ++) {
           let optionButton = dropdownButtons[i-2];
           if (demandsResults[i]) {
             console.log('displaying question: ' + i);
@@ -187,22 +160,8 @@ async function displayDemand(results, websiteName, fullid) {
             }
             console.log('optionButton is displayed');
             optionButton.addEventListener('click', function(tab) {
-              demandPanelDropdown.style.display = "none"
-              demandPanel3.style.display = "block"
-              demandResult3.innerHTML = answeredQuestion.question
-              if (answeredQuestion.requested == 1) {
-                requestButton3.innerHTML = "Requested";
-                requestButton3.disabled = true;
-                requestButton3.style.backgroundColor = colors.requested;
-              } else {
-                requestButton3.innerHTML = "Request"
-                requestButton3.addEventListener('click', function(tab) {
-                  registerDemand(brandDocId,answeredQuestion, fullid, collection);
-                  requestButton3.innerHTML = "Requested";
-                  requestButton3.disabled = true;
-                  requestButton3.style.backgroundColor = colors.requested;
-                })
-              }
+              demandPanelDropdown.style.display = "none";
+              displaySection(demandPanel3, demandResult3, requestButton3, answeredQuestion, fullid, collection, brandDocId);
             })
           } else {
             console.log('this last button should not be displatyed');
@@ -279,28 +238,13 @@ async function displayTrophies(results, websiteName, fullid,) {
 
   if(trophiesResults[0]) {
     console.log("ordered results are" + JSON.stringify(trophiesResults));
-    let displayedTrophy = trophiesResults[0];
-    trophiesResult1.innerHTML = displayedTrophy.question;
-    trophiesPanel1.style.display = "block"
-    if (displayedTrophy.requested == 1) {
-      requestTButton1.innerHTML = "Requested";
-      requestTButton1.disabled = true;
-      requestTButton1.style.backgroundColor = colors.requested;
-    } else {
-    requestTButton1.innerHTML = "Request";
-    requestTButton1.addEventListener('click', async function(tab) {
-      requestTButton1.innerHTML = "Requested";
-      requestTButton1.disabled = true;
-      requestTButton1.style.backgroundColor = colors.requested;
-      registerDemand(brandDocId,displayedTrophy, fullid, collection);
-    });
-    }
+    let answeredQuestion = trophiesResults[0];
+    displaySection(trophiesPanel1, trophiesResult1, requestTButton1, answeredQuestion, fullid, collection, brandDocId);
 
     if(trophiesResults[1]) {
         let nb = trophiesResults.length;
-        trophiesPanel1.style.display = "block";
-        trophiesPanel2.style.display = "none";
         trophiesPanelDropdown.style.display = "block"
+        trophiesPanel2.style.display = "none";
         trophiesPanelInput.style.display = "none"
         trophiesCreate.addEventListener('click', function(tab) {
           trophiesPanelInput.style.display = "block"
@@ -319,21 +263,7 @@ async function displayTrophies(results, websiteName, fullid,) {
             }
             optionButton.addEventListener('click', function(tab) {
               trophiesPanelDropdown.style.display = "none"
-              trophiesPanel2.style.display = "block"
-              trophiesResult2.innerHTML = answeredTrophy.question
-              if (answeredTrophy.requested == 1) {
-                requestTButton2.innerHTML = "Requested";
-                requestTButton2.disabled = true;
-                requestTButton2.style.backgroundColor = colors.requested;
-              } else {
-                requestTButton2.innerHTML = "Request"
-                requestTButton2.addEventListener('click', function(tab) {
-                  registerDemand(brandDocId,answeredTrophy, fullid, collection);
-                  requestTButton2.innerHTML = "Requested";
-                  requestTButton2.disabled = true;
-                  requestTButton2.style.backgroundColor = colors.requested;
-                })
-              }
+              displaySection(trophiesPanel2, trophiesResult2, requestTButton2, answeredQuestion, fullid, collection, brandDocId);
             })
           } else {
             console.log('this last trophy button should not be displatyed');
@@ -354,7 +284,96 @@ async function displayTrophies(results, websiteName, fullid,) {
   }
 }
 
-// demand functions
+// display functions
+function displaySection(demandPanel, demandResult, requestButton, answeredQuestion, fullid, collection, brandDocId) {
+  demandPanel.style.display = "block"
+  demandResult.innerHTML = answeredQuestion.question
+  if (answeredQuestion.requested == 1) {
+    requestButton.innerHTML = "Requested";
+    requestButton.disabled = true;
+    requestButton.style.backgroundColor = colors.requested;
+  } else {
+    requestButton.innerHTML = "Request"
+    requestButton.addEventListener('click', function(tab) {
+      registerDemand(brandDocId,answeredQuestion, fullid, collection);
+      requestButton.innerHTML = "Requested";
+      requestButton.disabled = true;
+      requestButton.style.backgroundColor = colors.requested;
+    })
+  }
+}
+
+async function validateWording (customTrophies, min, max) {
+  try {
+    console.log('trying to check language')
+    const languageIssue = await checkLanguage(customTrophies);
+    console.log(languageIssue)
+    if (languageIssue == true) {
+      alert('Watch your language, please');
+      let wordingIssue = languageIssue;
+      return wordingIssue
+    } else {
+      if (customTrophies.length < min) {
+        let wordingIssue ="short";
+        alert('This is not descriptive enough');
+        return wordingIssue
+      } else if (customTrophies.length > max) {
+        let wordingIssue = "long";
+        alert('Try to make it a bit shorter');
+        return wordingIssue
+      } else {
+        let wordingIssue = "none"
+        console.log('NO language issue');
+        return wordingIssue
+      }
+    } 
+  } catch(error) {
+    console.log(error); 
+  }
+}
+
+async function checkLanguage(customTrophies) {
+  console.log(customTrophies);
+  const issues = ["suck","fuck","shit","faggot","dick","bowls","ass","pute","cul","chienne","mère","fils de","cock", "bitch", "salope", "cunt"];
+  console.log(issues[1]);
+  for (let i=0;i<issues.length;i++) {
+    let word = issues[i];
+    if (customTrophies.indexOf(word) > -1 ) {
+      return true
+    } 
+  }
+  return false
+}
+
+async function publishContent(results, fullid, collection){
+  try{
+    const brandDocId = results.docId;
+    var sortedResults = [];
+    if (brandDocId) {
+    var demands = await checkQueries(brandDocId, fullid, collection);
+    const nb = demands.length;
+    var demandsResults = [];
+    console.log('demands in publish' + JSON.stringify(demands));
+
+    for (let i = 0; i < nb; i ++) {
+      const question = await demands[i];
+      console.log('questions is : ' + JSON.stringify(question));
+      const popularity = question.upvote + question.downvote;
+      question.popularity = popularity;
+      demandsResults[i] = question;
+    }
+
+    sortedResults = demandsResults.sort(function(a, b){
+      return b.popularity-a.popularity
+    });
+  } 
+  return sortedResults
+  } catch(error) {
+    console.log(error);
+  }
+};
+
+//firebase content
 async function registerNewBrand(websiteName, customDemand, fullid, collection) {
   let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
     let querySnapshot = await brandQuery.get();
@@ -416,34 +435,6 @@ function registerDemand(brandDocId, displayedQuestion1, fullid, collection) {
   }, { merge: true });
 }
 
-async function publishContent(results, fullid, collection){
-  try{
-    const brandDocId = results.docId;
-    var sortedResults = [];
-    if (brandDocId) {
-    var demands = await checkQueries(brandDocId, fullid, collection);
-    const nb = demands.length;
-    var demandsResults = [];
-    console.log('demands in publish' + JSON.stringify(demands));
-
-    for (let i = 0; i < nb; i ++) {
-      const question = await demands[i];
-      console.log('questions is : ' + JSON.stringify(question));
-      const popularity = question.upvote + question.downvote;
-      question.popularity = popularity;
-      demandsResults[i] = question;
-    }
-
-    sortedResults = demandsResults.sort(function(a, b){
-      return b.popularity-a.popularity
-    });
-  } 
-  return sortedResults
-  } catch(error) {
-    console.log(error);
-  }
-};
-
 async function checkQueries(brandDocId, fullid, collection) {
   try {
     var demands2 = [];
@@ -495,48 +486,6 @@ async function checkDemands(brandDocId,collection){
   }
 };
 
-async function validateWording (customTrophies, min, max) {
-  try {
-    console.log('trying to check language')
-    const languageIssue = await checkLanguage(customTrophies);
-    console.log(languageIssue)
-    if (languageIssue == true) {
-      alert('Watch your language, please');
-      let wordingIssue = languageIssue;
-      return wordingIssue
-    } else {
-      if (customTrophies.length < min) {
-        let wordingIssue ="short";
-        alert('This is not descriptive enough');
-        return wordingIssue
-      } else if (customTrophies.length > max) {
-        let wordingIssue = "long";
-        alert('Try to make it a bit shorter');
-        return wordingIssue
-      } else {
-        let wordingIssue = "none"
-        console.log('NO language issue');
-        return wordingIssue
-      }
-    } 
-  } catch(error) {
-    console.log(error); 
-  }
-}
-
-async function checkLanguage(customTrophies) {
-  console.log(customTrophies);
-  const issues = ["suck","fuck","shit","faggot","dick","bowls","ass","pute","cul","chienne","mère","fils de","cock", "bitch", "salope", "cunt"];
-  console.log(issues[1]);
-  for (let i=0;i<issues.length;i++) {
-    let word = issues[i];
-    if (customTrophies.indexOf(word) > -1 ) {
-      return true
-    } 
-  }
-  return false
-}
-
 //functions esg
 function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
@@ -580,7 +529,6 @@ function displayEsg(results) {
   }
 }
 
-
 function displayPrivateLink(privacy) {
   const urlBusiness = "https://www.crunchbase.com/organization/";
   const link = urlBusiness + privacy;
@@ -613,6 +561,7 @@ function displayProfileLink(yahooCode) {
     });
     }
 
+// login
 async function login() {
   chrome.identity.getAuthToken({interactive: true}, function(token) {
   if (chrome.runtime.lastError) {
@@ -634,6 +583,7 @@ async function login() {
 return true
 }
 
+// firebase brands and businesses
 async function checkBusinessData(brand) {
   try {   
     const matchedBusiness = await checkBrand(brand);
@@ -681,8 +631,6 @@ async function checkBusinessData(brand) {
   console.log('finalBusiness is : ' + JSON.stringify(finalBusiness));
   return finalBusiness
 }
-//module.exports = { checkBusinessData };
-
 
 async function checkBrand(brand) {
   try {
