@@ -100,8 +100,6 @@ async function checkBusinessData(brand) {
         finalBusiness.new_business = false;
         finalBusiness.hasBusiness_ref = false;
         finalBusiness.hasEsg = false;
-        finalBusiness.name = matchedBusiness.business_name;
-        finalBusiness.brand_name = matchedBusiness.name  
       } else { 
         businessSnapshot.forEach(doc => {
           finalBusiness = doc.data();
@@ -112,6 +110,7 @@ async function checkBusinessData(brand) {
           finalBusiness.hasBusiness_ref = true;
           finalBusiness.new_brand =  matchedBusiness.new_brand;
           finalBusiness.local = matchedBusiness.local;
+          finalBusiness.business_name = matchedBusiness.business_name;
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -141,13 +140,13 @@ async function checkBrand(brand) {
       console.log('brand exists in db');  
       querySnapshot.forEach(doc => { //if brand exists
         const businessRef = doc.data().business_ref;
-        const businessName = doc.data().business_name;
+        brand.business_name = doc.data().business_name;
         brand.small_business = doc.data().small_business;
         brand.docId = doc.id;
         brand.private = doc.data().private;
         brand.new_brand = doc.data().small_business; 
         brand.local = doc.data().local; 
-        brand.name = doc.data().name
+        brand.brand_name = doc.data().name
         console.log('brand extracted is: ' + JSON.stringify(brand));
         if((!businessRef) || businessRef.empty) {
           console.log('this brand has no business ref');
@@ -155,7 +154,6 @@ async function checkBrand(brand) {
           brand.business_ref = "";      
         } else{
           brand.business_ref = businessRef;
-          brand.business_name = businessName;
           brand.hasBusiness_ref = true;
           console.log('brand exists and has business ref')
         }

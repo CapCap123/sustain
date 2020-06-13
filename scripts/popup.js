@@ -490,19 +490,29 @@ async function checkDemands(brandDocId,collection){
 function displayEsg(results) {
   if(results.hasBusiness_ref == false) {
     if(results.private) {
-      let answer =   (
-        "This website belongs to: <b>" + results.name + "</b>: a <b>private company</b>.<br>We could not access their ESG risk report."
+      if(results.business_name) {
+        let answer =   (
+        "This website belongs to: <b>" + results.business_name + "</b>: a <b>private company</b>.<br>We could not access their ESG risk report."
         ); 
         displayPrivateLink(results.private)
-      detailsButton.style.display = "block";
-      document.getElementById("postEsgResults").innerHTML = answer;
-      return answer
-      } else if (results.local == true) {
-        let answer =  (
-        "This is a <b>local business</b>. ESG risk reports are ususally not available for local businesses."
-        ); 
-        detailsButton.style.display = "none"
+        detailsButton.style.display = "block";
+        document.getElementById("postEsgResults").innerHTML = answer;
         return answer
+      } else {
+        let answer =   (
+        "This website belongs to: <b>" + results.brand_name + "</b>: a <b>private company</b>.<br>We could not access their ESG risk report."
+        ); 
+        displayPrivateLink(results.private)
+        detailsButton.style.display = "block";
+        document.getElementById("postEsgResults").innerHTML = answer;
+        return answer
+      }
+    } else if (results.local == true) {
+      let answer =  (
+      "<b>" + results.brand_name +"</b> is a <b>local business</b>.<br>ESG risk reports are ususally not available for local businesses."
+      ); 
+      detailsButton.style.display = "none"
+      return answer
     } else {  
       let answer =  (
       "We do not have official information about this website, yet."
@@ -514,7 +524,7 @@ function displayEsg(results) {
   } else {
     if (results.hasEsg == false) {
       let answer = (
-      "This website belongs to <b>"+ results.brand_name + "</b>: a <b>public company</b>." +
+      "This website belongs to <b>"+ results.business_name + "</b>: a <b>public company</b>." +
       "<br>Unlike most public companies, <b>their ESG risk report is not available</b> on their profile."
       );
       displayProfileLink(results.yahoo_uid);
@@ -523,7 +533,7 @@ function displayEsg(results) {
       return answer
     } else if (results.hasEsg == true) {
       let answer =  (
-      "This website belongs to <b>" + results.brand_name +
+      "This website belongs to <b>" + results.business_name +
       "</b>:<br>\u2022 ESG risk: <b>"+ results.yahoo_esg + "%</b> (" + results.yahoo_percentile +
       ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "</b>."
       );
@@ -611,7 +621,6 @@ async function checkBusinessData(brand) {
         finalBusiness.new_business = false;
         finalBusiness.hasBusiness_ref = false;
         finalBusiness.hasEsg = false;
-        finalBusiness.name = matchedBusiness.business_name;
         finalBusiness.brand_name = matchedBusiness.name  
       } else { 
         businessSnapshot.forEach(doc => {
@@ -619,6 +628,7 @@ async function checkBusinessData(brand) {
           finalBusiness.new_business = false;
           finalBusiness.business_ref = matchedBusiness.yahoo_uid;
           finalBusiness.brand_name = matchedBusiness.name;
+          finalBusiness.business_name = matchedBusiness.business_name;
           finalBusiness.docId = matchedBusiness.docId;
           finalBusiness.hasBusiness_ref = true;
           finalBusiness.new_brand =  matchedBusiness.new_brand
@@ -651,10 +661,10 @@ async function checkBrand(brand) {
     } else {
       brand.new_brand = false;     
       querySnapshot.forEach(doc => { //if brand exists
-        const businessRef = doc.data().business_ref
-        const businessName = doc.data().business_name
+        const businessRef = doc.data().business_ref;
+        brand.business_name = doc.data().business_name;
         const brandDocId = doc.id;
-        brand.small_business = doc.data().small_business
+        brand.small_business = doc.data().small_business;
         brand.docId = brandDocId;
         brand.local = doc.data().local; 
         brand.name = doc.data().name
@@ -665,7 +675,6 @@ async function checkBrand(brand) {
           brand.business_ref = "";  
         } else{
           brand.business_ref = businessRef;
-          brand.business_name = businessName;
           brand.hasBusiness_ref = true;
           console.log('brand exists and has business ref')
         }
