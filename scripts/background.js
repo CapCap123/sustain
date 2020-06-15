@@ -1,4 +1,3 @@
-
 import * as firebase from 'firebase/app'
 import {firestore} from 'firebase/firestore'
 import regeneratorRuntime from 'regenerator-runtime/runtime';
@@ -7,9 +6,14 @@ import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
 import {findWebsiteName} from './general.js';
 
 var config = {
-  apiKey: 'AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo',
-  authDomain: 'sustainability-4ae3a.firebaseapp.com',
-  projectId: 'sustainability-4ae3a'
+  apiKey: "AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo",
+  authDomain: "sustainability-4ae3a.firebaseapp.com",
+  databaseURL: "https://sustainability-4ae3a.firebaseio.com",
+  projectId: "sustainability-4ae3a",
+  storageBucket: "sustainability-4ae3a.appspot.com",
+  messagingSenderId: "915190118676",
+  appId: "1:915190118676:web:7047070d6042c1d685aa01",
+  measurementId: "G-0NH1RKVV78"
   };
 
 firebase.initializeApp(config);
@@ -23,7 +27,6 @@ chrome.tabs.onActivated.addListener(function (tabId, windowId) {
         //alert(changeInfo);
         let badgeUpdated = updateBadge();
   });
-
 });
 
 async function updateBadge() {
@@ -37,16 +40,14 @@ async function updateBadge() {
     const websiteName = await findWebsiteName(currentURL);
 
     chrome.storage.sync.get(websiteName, async function(result) {
-      //alert( websiteName + " results retrieved from storage in BG is " + result[websiteName]);
       let results = await result[websiteName];
-      if(results && (results.new_brand != true)) {
+      if(results && (results.small_business != "new")) {
         console.log('bg, new_brand = new: ' + JSON.stringify(results));
 
         let badgeColor = setBadge(await results);
         chrome.browserAction.setBadgeText({text: "   "});
         chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
       } else {
-        //alert('results not yet in storage');
         var brand = await checkBrandName(websiteName);
         const results = await checkBusinessData(brand);
         console.log('bg from DB: ' + JSON.stringify(results));
@@ -88,7 +89,6 @@ async function checkBusinessData(brand) {
     if (!yahooCode || yahooCode.length < 1) {
       console.log('no business ref found for this brand')
       var finalBusiness = matchedBusiness;
-      finalBusiness.new_business = false;
       finalBusiness.hasBusiness_ref = false;
       finalBusiness.hasEsg = false;
     } else {
@@ -97,20 +97,20 @@ async function checkBusinessData(brand) {
       if (businessSnapshot.empty) {
         console.log('scraper for business needed');
         var finalBusiness = matchedBusiness;
-        finalBusiness.new_business = false;
         finalBusiness.hasBusiness_ref = false;
         finalBusiness.hasEsg = false;
       } else { 
         businessSnapshot.forEach(doc => {
           finalBusiness = doc.data();
           finalBusiness.new_business = false;
+          finalBusiness.hasBusiness_ref = true;
           finalBusiness.business_ref = matchedBusiness.yahoo_uid;
           finalBusiness.brand_name = matchedBusiness.name;
           finalBusiness.docId = matchedBusiness.docId;
-          finalBusiness.hasBusiness_ref = true;
           finalBusiness.new_brand =  matchedBusiness.new_brand;
           finalBusiness.local = matchedBusiness.local;
           finalBusiness.business_name = matchedBusiness.business_name;
+          finalBusiness.small_business = matchedBusiness.small_business;
           const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -178,6 +178,9 @@ function setBadge(results) {
     if (results.hasEsg == false) {
       let badgeColor = colors.red;
       return badgeColor
+    } else if (results.yahoo_controverse && results.yahoo_controverse > 3) {
+      let badgeColor = colors.red;
+      return badgeColor;
     } else {
       if (results.yahoo_esg < 30) {
         let badgeColor = colors.green;
@@ -194,7 +197,6 @@ function setBadge(results) {
     let badgeColor = colors.grey;      
     return badgeColor  
   }
-
 }
 
 // chrome storage

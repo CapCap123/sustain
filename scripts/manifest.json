@@ -2,8 +2,8 @@
 "manifest_version": 2,
 "key": "ghalimabenngnfdoggkjojofjfkafkgh",
 
-"name": "Sustain Report Popup",
-"description": "Access information on a business impact on environment and ask them for the changes you expect",
+"name": "Sustain",
+"description": "Learn more about the websites you visit and request more sustainable practices, right from your browser.",
 "version": "1.1",
 
 "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com ; object-src 'self'",
