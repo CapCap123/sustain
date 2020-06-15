@@ -24,46 +24,51 @@ chrome.tabs.onActivated.addListener(function (tabId, windowId) {
   console.log('tab activated');
   let badgeUpdated = updateBadge();
   chrome.tabs.onUpdated.addListener(function(changeInfo ,tabs) {
-        //alert(changeInfo);
         let badgeUpdated = updateBadge();
   });
 });
 
 async function updateBadge() {
-  console.log('updating badge');
-  chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, async function(tabs) {
-    console.log('tab query');
+  chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
     const currentTab = tabs[0];
+    chrome.browserAction.disable(currentTab.id);
+    chrome.browserAction.setBadgeText({text: ""});
+  })
+  chrome.tabs.query({active: true, currentWindow: true, status: "complete"}, async function(tabs) {
+    const currentTab = tabs[0];
+    chrome.browserAction.setBadgeText({text: ""});
+    chrome.browserAction.disable(currentTab.id);
     console.log(JSON.stringify(currentTab));
     if(currentTab) {
-    const currentURL = currentTab.url;
-    const websiteName = await findWebsiteName(currentURL);
+      const currentURL = currentTab.url;
+      const websiteName = await findWebsiteName(currentURL);
 
-    chrome.storage.sync.get(websiteName, async function(result) {
-      let results = await result[websiteName];
-      if(results && (results.small_business != "new")) {
-        console.log('bg, new_brand = new: ' + JSON.stringify(results));
+      chrome.storage.sync.get(websiteName, async function(result) {
+        let results = await result[websiteName];
+        chrome.browserAction.enable(currentTab.id);
+        if(results && (results.small_business != "new")) {
+          console.log('bg, new_brand = new: ' + JSON.stringify(results));
 
-        let badgeColor = setBadge(await results);
-        chrome.browserAction.setBadgeText({text: "   "});
-        chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
-      } else {
-        var brand = await checkBrandName(websiteName);
-        const results = await checkBusinessData(brand);
-        console.log('bg from DB: ' + JSON.stringify(results));
+          let badgeColor = setBadge(await results);
+          chrome.browserAction.setBadgeText({text: "   "});
+          chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+        } else {
+          var brand = await checkBrandName(websiteName);
+          const results = await checkBusinessData(brand);
+          console.log('bg from DB: ' + JSON.stringify(results));
 
-        let badgeColor = setBadge(await results);
-        chrome.browserAction.setBadgeText({text: "   "});
-        chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
+          let badgeColor = setBadge(await results);
+          chrome.browserAction.setBadgeText({text: "   "});
+          chrome.browserAction.setBadgeBackgroundColor({color: badgeColor, tabId: currentTab.id});
 
-        chrome.storage.sync.set({[websiteName]: results}, function() {
-          console.log("Value in BG of " + websiteName + " is set to " + JSON.stringify(results));
-        });
-      }
-    return true
+          chrome.storage.sync.set({[websiteName]: results}, function() {
+            console.log("Value in BG of " + websiteName + " is set to " + JSON.stringify(results));
+          });
+        }
+      return true
+      })
+    }
   })
-}
-})
 }
 
 // function website name
