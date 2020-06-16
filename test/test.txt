@@ -1,0 +1,34 @@
+import {checkBusinessData} from './checkdata.js'
+
+<script type="module" src="../checkdata.js"></script>
+
+     "content_scripts": [ {
+        "matches": ["<all_urls>"],
+        "js": [
+          "popup.js",
+          "firebase.js"
+        ]
+     }]
+
+    <script src="../scripts/popup.js"></script>
+
+         "externally_connectable": {
+        "matches": ["*://*.googleapis.com/*"]
+      }
+
+
+        function initApp() {
+    // Listen for auth state changes.
+    firebase.auth().onAuthStateChanged(function(user) {
+      console.log('User state change detected from the Background script of the Chrome Extension:', user);
+    });
+  }
+  
+  window.onload = function() {
+    initApp();
+  };
+  
+
+            "firebase-app.js",
+          "firebase-auth.js",
+          "firebase-firestore.js",

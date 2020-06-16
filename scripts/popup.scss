@@ -1,0 +1,111 @@
+// Your variable overrides
+//$body-bg:  #344;
+//$body-color: #344;
+
+.button{
+    font-size: 0.8rem;
+    border-style: none;
+    border-radius: 3px;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+  .btn-upvote {
+    font-size: 0.8rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color:greenyellow;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+
+  .btn-downvote {
+    font-size: 0.8rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color:orange;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+
+  .btn-request {
+    font-size: 0.8rem;
+    border-style: none;
+    border-radius: 3px;
+    background-color: dodgerblue;
+    color:black;
+    padding: 5px;
+    margin: 3px;
+  }
+
+  .panel {
+    background-color: rgb(245, 245, 245);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  .panelTrophies {
+    background-color: rgb(227, 250, 231);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  .panelTrophies2 {
+    background-color: rgb(227, 250, 231);
+    color: #344;
+    margin: 2px;
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .panelDemand {
+    background-color: rgb(219, 241, 255);
+    color: #344;
+    margin: 5px;
+    border-radius: 3px;
+    padding: 10px;
+  }
+
+  .panelDemand2 {
+    background-color: rgb(219, 241, 255);
+    color: #344;
+    margin: 2px;
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .panelDropdown {
+    background-color: rgb(219, 241, 255);
+    color: #344;
+    margin: 2px;
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .dropdown-item{
+    font-size: 0.8rem;
+    display: none;
+  }
+
+  .form-control{
+    font-size: 0.8rem;
+    line-height: 0.9rem;
+  }
+
+  .text{
+    font-size: 0.8rem;
+  }
+
+  .panel-body{
+    font-size: 0.8rem;
+    padding: 3px;
+  }
+
+// Bootstrap and its default variables
+@import "../node_modules/bootstrap/scss/bootstrap";

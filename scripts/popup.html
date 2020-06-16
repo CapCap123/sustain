@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./popup.scss">
+  <head>
+    <title>Sustain</title>
+  </head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  <body style="width:350px;height:max-content">
+  <script defer src="/../scripts/popup.js"></script>
+  <style>
+    h1, .h1 {
+  font-size: 1rem;
+}
+  </style>
+
+  <div class = "container">
+    <div class="panel-group" id="popup">
+      <div class="panel" id="report">
+        <h1 id="title" data-toggle="tooltip" title="Hooray!" data-placement="right">Environment, Social and Governance (ESG) risks</h1>
+        <div class="panel-body" id="postEsgResults"></div>
+        <button class="btn btn-link btn-sm" id="detailsButton">See details</button>
+      </div>
+
+      <div class="panelDemand" id="demands">
+        <h1 id="title">Demands</h1>
+        <div class="panelDemand2" id="demands1">
+          <div class="panel-body" id="postDemandResults1"></div>
+          <button type="button" class="btn-request" id="requestButton1"></button>
+        </div>
+        <div class="panelDemand2" id="demands2">
+        <div class="panel-body" id="postDemandResults2"></div>
+          <button type="button" class="btn-request" id="requestButton2"></button>
+      </div>
+      <div class="panelDemand2" id="demands3">
+        <div class="panel-body" id="postDemandResults3"></div>
+          <button type="button" class="btn-request" id="requestButton3"></button>
+      </div>
+
+      <div class="panelDemand2" id="demandsDropdown">
+        <div class="panel-body" id="postDropdown">Something else?</div>
+        <div class="dropdown">
+          <button class="btn-request dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More options
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+            <button class="dropdown-item" id="demandOption" type="button"></button>
+            <button class="dropdown-item" id="demandOption1" type="button"></button>
+            <button class="dropdown-item" id="demandOption2" type="button"></button>
+            <button class="dropdown-item" id="demandOption3" type="button"></button>
+            <button class="dropdown-item" id="demandOption4" type="button"></button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="createDemand" type="button">Create a new demand</button>
+          </div>
+        </div>
+      </div>
+      <div class="panelDemand2" id="demandsInput">
+      <div class="panel-body" id="postDemandResultsCustom">Create a new demand</div>
+      <input type="text" id="inputDemand" name="demands" class="form-control" aria-describedby="emailHelp">
+      <small id="emailHelp" class="form-text text-muted">You would support this business more if ...?</small>
+      <button type="button" class="btn-request" id="inputButton">Submit</button>
+    </div>
+      </div>
+    </div>
+
+      <div class="panelTrophies" id="trophies">
+        <h1 id="title">Trophies</h1>
+        <div class="panelTrophies2" id="trophies1">
+          <div class="panel-body" id="postTrophiesResults1"></div>
+          <button type="button" class="btn-request" id="requestTButton1"></button>
+        </div>
+        <div class="panelTrophies2" id="trophies2">
+        <div class="panel-body" id="postTrophiesResults2"></div>
+          <button type="button" class="btn-request" id="requestTButton2"></button>
+      </div>
+      <div class="panelTrophies2" id="trophiesDropdown">
+        <div class="panel-body" id="postDropdown">Something else?</div>
+        <div class="dropdown">
+          <button class="btn-request dropdown-toggle" type="button" id="dropdownMenu3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            More options
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenu3">
+            <button class="dropdown-item" id="trophiesOption" type="button"></button>
+            <button class="dropdown-item" id="trophiesOption1" type="button"></button>
+            <button class="dropdown-item" id="trophiesOption2" type="button"></button>
+            <button class="dropdown-item" id="trophiesOption3" type="button"></button>
+            <button class="dropdown-item" id="trophiesOption4" type="button"></button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="createTrophy" type="button">Create a new trophy</button>
+          </div>
+        </div>
+      </div>
+      <div class="panelTrophie2" id="trophiesInput">
+      <div class="panel-body" id="postTrophiesResultsCustom">Create a new trophy</div>
+      <input type="text" id="inputTrophies" name="trophies" class="form-control" aria-describedby="emailHelp">
+      <small id="emailHelp" class="form-text text-muted">This business deserves support because ...?</small>
+      <button type="button" class="btn-request" id="inputTButton">Submit</button>
+    </div>
+      </div>
+    </div>
+
+</div>
+</body>
+</html>
+
