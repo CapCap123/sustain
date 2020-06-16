@@ -3,21 +3,15 @@ import {findWebsiteName} from './general.js';
 import $ from 'jquery';
 import * as firebase from 'firebase/app'
 import {auth} from 'firebase/auth';
-import {firestore} from 'firebase/firestore'
+//import {firestore} from 'firebase/firestore'
 import * as bootstrap from 'bootstrap'
+import {checkBusinessData} from './firebase.js';
+import {registerNewDemand} from './firebase.js';
+import {registerDemand} from './firebase.js';
+import {registerNewBrand} from './firebase.js';
+import {checkQueries} from './firebase.js';
+import {login} from './firebase.js';
 
-var config = {
-  apiKey: "AIzaSyBrJTjQo6gZ6UX_iTo8z1muvrIoMxkXvwo",
-  authDomain: "sustainability-4ae3a.firebaseapp.com",
-  databaseURL: "https://sustainability-4ae3a.firebaseio.com",
-  projectId: "sustainability-4ae3a",
-  storageBucket: "sustainability-4ae3a.appspot.com",
-  messagingSenderId: "915190118676",
-  appId: "1:915190118676:web:7047070d6042c1d685aa01",
-  measurementId: "G-0NH1RKVV78"
-  };
-firebase.initializeApp(config);
-let db = firebase.firestore();
 
 const colors = {
   "requested": "#afafaf"
@@ -36,7 +30,7 @@ chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
     if(results) {
       console.log('displaying content from stroage')
       console.log('results in popup from storage are ' + JSON.stringify(results));
-      displayContent (websiteName, results)
+      displayContent (websiteName, results);
     } else {
       console.log('no data in storage');
       let brand = {};
@@ -115,6 +109,7 @@ async function displayDemand(results, websiteName, fullid) {
 
   const collection = 'questions';
   const demandsResults = await publishContent(results, fullid ,collection);
+  console.log(demandsResults)
   const demandPanel = document.getElementById('demands');
   demandPanel.style.display = "block"
   demandPanel3.style.display = "none"
@@ -355,6 +350,7 @@ async function publishContent(results, fullid, collection){
     var sortedResults = [];
     if (brandDocId) {
     var demands = await checkQueries(brandDocId, fullid, collection);
+    console.log('checkQueries: ' + checkQueries);
     const nb = demands.length;
     var demandsResults = [];
     console.log('demands in publish' + JSON.stringify(demands));
@@ -371,106 +367,6 @@ async function publishContent(results, fullid, collection){
     });
   } 
   return sortedResults
-  } catch(error) {
-    console.log(error);
-  }
-};
-
-//firebase content
-async function registerNewBrand(websiteName, customDemand, fullid, collection) {
-  let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
-    let querySnapshot = await brandQuery.get();
-    if (querySnapshot.empty) {
-      let brandRef = db.collection('brands');
-      let addBrand = brandRef.add({
-        name: websiteName,
-        small_business: 'new',
-        websites: [websiteName],
-      }).then(function(docRef) {
-        let ref = docRef.id
-        let questionRef = db.collection('brands').doc(ref).collection(collection);
-        questionRef.add({
-          upvote: 1,
-          question: customDemand,
-        }).then(function(docRef2) {
-          let ref2 = docRef2.id;
-          let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(fullid);
-          demandRef.set({
-            upvote: 1 
-          })
-        })
-      })
-    } else {
-      querySnapshot.forEach(doc => { //if brand exists
-        let brandDocId = doc.id;
-        registerNewDemand(brandDocId,customDemand, fullid, collection)
-      })
-    }
-}
-
-function registerNewDemand(brandDocId,customDemand, fullid, collection) {
-  let questionRef = db.collection('brands').doc(brandDocId).collection(collection);
-  questionRef.add({
-    upvote: 1,
-    question: customDemand,
-    new_demand: true
-  }).then(function(docRef) {
-    let ref = docRef.id;
-    let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(ref).collection('demands').doc(fullid);
-    demandRef.set({
-      upvote: 1 
-    })
-  })
-}
-
-function registerDemand(brandDocId, displayedQuestion1, fullid, collection) {
-  let questionId = displayedQuestion1.questionId;
-  let currentUpvotes = displayedQuestion1.upvote + 1;
-  let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(questionId).collection('demands').doc(fullid);
-  demandRef.set({
-    upvote: 1 
-  })
-  let upvoteRef = db.collection('brands').doc(brandDocId).collection(collection).doc(questionId);
-  var setWithMerge = upvoteRef.set({
-    upvote: currentUpvotes
-  }, { merge: true });
-}
-
-async function checkQueries(brandDocId, fullid, collection) {
-  try {
-    var demands2 = [];
-    let demands = await checkDemands(brandDocId,collection);
-    for (let i = 0; i < demands.length; i ++) {
-      let demand2 = demands[i];
-      let question = demand2.questionId;
-      let userQuery = db.collection('brands').doc(brandDocId).collection(collection).doc(question).collection('demands').doc(fullid);
-      let demandQuery = await userQuery.get()
-      if (demandQuery.exists) {
-        let demand3 = demand2;
-        demand3.requested = 1;
-        demands2.push(demand3);
-      } else {
-        demands2.push(demand2);
-      }
-    }
-    return demands2
-  } catch(error) {
-    console.log(error);
-  }
-}
-
-async function checkDemands(brandDocId,collection){
-  try{
-    var demands = [];
-    let demandQuery = db.collection('brands').doc(brandDocId).collection(collection)
-    let querySnapshot = await demandQuery.get();
-    if (!querySnapshot.empty) {
-      querySnapshot.forEach(doc => { //if brand exists
-        const demand = {"name": doc.data().name , question: doc.data().question, "upvote": doc.data().upvote, "downvote": doc.data().downvote, "questionId": doc.id};
-        demands.push(demand);
-      })
-    } else {}
-  return demands
   } catch(error) {
     console.log(error);
   }
@@ -576,100 +472,3 @@ function displayProfileLink(yahooCode) {
       window.open(link)
     });
     }
-
-// login
-async function login() {
-  chrome.identity.getAuthToken({interactive: true}, function(token) {
-  if (chrome.runtime.lastError) {
-      alert(chrome.runtime.lastError.message);
-      var status = "failed";
-      return status;
-  }
-  var x = new XMLHttpRequest();
-  x.open('GET', 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + token);
-  x.onload = function() {
-      alert(x.response);
-      var status = "success";
-  };
-  var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
-  firebase.auth().signInWithCredential(credential);
-  x.send();
-  return status;
-});
-return true
-}
-
-// firebase brands and businesses
-async function checkBusinessData(brand) {
-  try {   
-    const matchedBusiness = await checkBrand(brand);
-    const yahooCode = matchedBusiness.business_ref;
-
-    if (!yahooCode || yahooCode.length < 1) {
-      var finalBusiness = matchedBusiness;
-      finalBusiness.hasBusiness_ref = false;
-      finalBusiness.hasEsg = false;
-    } else {
-      let businessQuery = db.collection('businesses').where('yahoo_uid', '==',  yahooCode);
-      let businessSnapshot = await businessQuery.get();        
-      if (businessSnapshot.empty) {
-        var finalBusiness = matchedBusiness;
-        finalBusiness.hasBusiness_ref = false;
-        finalBusiness.hasEsg = false;
-        finalBusiness.brand_name = matchedBusiness.name  
-      } else { 
-        businessSnapshot.forEach(doc => {
-          finalBusiness = doc.data();
-          finalBusiness.new_business = false;
-          finalBusiness.business_ref = matchedBusiness.yahoo_uid;
-          finalBusiness.brand_name = matchedBusiness.name;
-          finalBusiness.business_name = matchedBusiness.business_name;
-          finalBusiness.docId = matchedBusiness.docId;
-          finalBusiness.hasBusiness_ref = true;
-          finalBusiness.small_business =  matchedBusiness.small_business
-          const esg = finalBusiness.yahoo_esg;
-            if ((!esg) || (esg.length < 1)) {
-              finalBusiness.hasEsg = false;
-            } else {
-              finalBusiness.hasEsg = true;
-            }
-        })
-      }
-    }
-  } catch(error) {
-    console.log(error);
-  }
-  return finalBusiness
-}
-
-async function checkBrand(brand) {
-  try {
-    const websiteName = brand.website;
-    let brandQuery = db.collection('brands').where('websites', 'array-contains',  websiteName);
-    let querySnapshot = await brandQuery.get();
-    if (querySnapshot.empty) {
-      brand.new_brand = true;        
-    } else {
-      brand.new_brand = false;     
-      querySnapshot.forEach(doc => { //if brand exists
-        const businessRef = doc.data().business_ref;
-        brand.business_name = doc.data().business_name;
-        const brandDocId = doc.id;
-        brand.small_business = doc.data().small_business;
-        brand.docId = brandDocId;
-        brand.local = doc.data().local; 
-        brand.name = doc.data().name;
-        if((!businessRef) || businessRef.empty) {
-          brand.hasEsg = false;
-          brand.business_ref = "";  
-        } else{
-          brand.business_ref = businessRef;
-          brand.hasBusiness_ref = true;
-        }
-      })
-    }
-  } catch(error) {
-    console.log(error)
-  }
-return brand;
-}

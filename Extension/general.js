@@ -1,5 +1,3 @@
-//import {db} from './background.js';
-
 async function findWebsiteName(currentURL) {
     try {
       var websiteName = "";
@@ -48,5 +46,3 @@ async function findWebsiteName(currentURL) {
       return website2
     }
   }
-
-  // firebase data
