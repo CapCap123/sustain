@@ -4,6 +4,9 @@ import {findWebsiteName} from './general.js';
 import {checkBusinessData} from './firebase.js';
 import { ResultStorage } from 'firebase-functions/lib/providers/testLab';
 
+let toReview = {
+}
+
 chrome.tabs.onActivated.addListener(function (tabId, windowId) { 
   console.log('tab activated');
   let badgeUpdated = updateBadge();
@@ -32,7 +35,7 @@ async function updateBadge() {
       chrome.storage.sync.get(websiteName, async function(result) {
         let results = await result[websiteName];
         chrome.browserAction.enable(currentTab.id);
-        if(results && (results.small_business != "new")) {
+        if(results && (results.small_business != "new" || !toReview[results.business_name])) {
           console.log('getting business from storage');
           let badgeColor = setBadge(await results);
           chrome.browserAction.setBadgeText({text: "   "});
