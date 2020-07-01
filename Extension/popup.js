@@ -61,6 +61,7 @@ async function displayContent (websiteName, results) {
   //display content if user is logged in
   firebase.auth().onAuthStateChanged(async function(user) {
     if (user) {
+      console.log('user logged in');
       user.providerData.forEach(async function (profile) {
         const fullid = profile.uid;
         console.log("userID from popup: " + fullid );
@@ -69,6 +70,7 @@ async function displayContent (websiteName, results) {
       })
     } else {
       let status = await login();
+      console.log('user TO BE logged in');
       if (status == true) {
       user.providerData.forEach(async function (profile) {
         const fullid = profile.uid;

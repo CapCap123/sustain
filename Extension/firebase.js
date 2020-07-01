@@ -40,6 +40,7 @@ var config = {
         } else { 
           businessSnapshot.forEach(doc => {
             finalBusiness = doc.data();
+            console.log('final business is '+ finalBusiness)
             finalBusiness.new_business = false;
             finalBusiness.hasBusiness_ref = true;
             finalBusiness.business_ref = matchedBusiness.yahoo_uid;
@@ -50,11 +51,13 @@ var config = {
             finalBusiness.business_name = matchedBusiness.business_name;
             finalBusiness.small_business = matchedBusiness.small_business;
             const esg = finalBusiness.yahoo_esg;
-              if ((!esg) || (esg.length < 1)) {
-                finalBusiness.hasEsg = false;
-              } else {
-                finalBusiness.hasEsg = true;
-              }
+            if ((!esg) || (esg.length < 1)) {
+              finalBusiness.hasEsg = false;
+              console.log('final business has esg? '+ finalBusiness)
+            } else {
+              finalBusiness.hasEsg = true;
+              console.log('final business has esg? '+ finalBusiness)
+            }
           })
         }
       }

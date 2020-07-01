@@ -1,12 +1,12 @@
 {
   "name": "sustain",
-  "key": "ghalimabenngnfdoggkjojofjfkafkgh",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "parcel extension/manifest.json --no-hmr"
   },
   "author": "",
   "license": "ISC",
