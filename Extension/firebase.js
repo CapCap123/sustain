@@ -15,7 +15,6 @@ var config = {
   
   firebase.initializeApp(config);
   let db = firebase.firestore();
-  //module.exports = { db };
   
   // firebase data
   async function checkBusinessData(brand) {
@@ -126,7 +125,7 @@ async function registerNewBrand(websiteName, customDemand, fullid, collection) {
             question: customDemand,
           }).then(function(docRef2) {
             let ref2 = docRef2.id;
-            let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(fullid);
+            let demandRef = db.collection('brands').doc(ref).collection(collection).doc(ref2).collection('demands').doc(firebase.auth().currentUser.uid );
             demandRef.set({
               upvote: 1 
             })
@@ -148,7 +147,7 @@ async function registerNewBrand(websiteName, customDemand, fullid, collection) {
       new_demand: true
     }).then(function(docRef) {
       let ref = docRef.id;
-      let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(ref).collection('demands').doc(fullid);
+      let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(ref).collection('demands').doc(firebase.auth().currentUser.uid );
       demandRef.set({
         upvote: 1 
       })
@@ -158,7 +157,7 @@ async function registerNewBrand(websiteName, customDemand, fullid, collection) {
   function registerDemand(brandDocId, displayedQuestion1, fullid, collection) {
     let questionId = displayedQuestion1.questionId;
     let currentUpvotes = displayedQuestion1.upvote + 1;
-    let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(questionId).collection('demands').doc(fullid);
+    let demandRef = db.collection('brands').doc(brandDocId).collection(collection).doc(questionId).collection('demands').doc(firebase.auth().currentUser.uid );
     demandRef.set({
       upvote: 1 
     })
@@ -176,7 +175,7 @@ async function registerNewBrand(websiteName, customDemand, fullid, collection) {
       for (let i = 0; i < demands.length; i ++) {
         let demand2 = demands[i];
         let question = demand2.questionId;
-        let userQuery = db.collection('brands').doc(brandDocId).collection(collection).doc(question).collection('demands').doc(fullid);
+        let userQuery = db.collection('brands').doc(brandDocId).collection(collection).doc(question).collection('demands').doc(firebase.auth().currentUser.uid );
         let demandQuery = await userQuery.get()
         if (demandQuery.exists) {
           let demand3 = demand2;

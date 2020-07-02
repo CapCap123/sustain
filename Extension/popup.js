@@ -3,7 +3,6 @@ import {findWebsiteName} from './general.js';
 import $ from 'jquery';
 import * as firebase from 'firebase/app'
 import {auth} from 'firebase/auth';
-//import {firestore} from 'firebase/firestore'
 import * as bootstrap from 'bootstrap'
 import {checkBusinessData} from './firebase.js';
 import {registerNewDemand} from './firebase.js';
@@ -27,7 +26,7 @@ chrome.tabs.query({active: true, currentWindow: true}, async function (tabs) {
   chrome.storage.sync.get(websiteName, async function(result) {
     console.log( websiteName + " results retrieved from storage in popup is " + result[websiteName]);
     let results = await result[websiteName];
-    if(results) {
+    if(results.small_business && results.small_business != "new") {
       console.log('displaying content from stroage')
       console.log('results in popup from storage are ' + JSON.stringify(results));
       displayContent (websiteName, results);
@@ -64,7 +63,7 @@ async function displayContent (websiteName, results) {
       console.log('user logged in');
       user.providerData.forEach(async function (profile) {
         const fullid = profile.uid;
-        console.log("userID from popup: " + fullid );
+        console.log("userID from popup: " + fullid);
         displayDemand(results, websiteName, fullid);
         displayTrophies(results, websiteName, fullid);
       })
@@ -182,6 +181,7 @@ async function displayDemand(results, websiteName, fullid) {
       demandPanelInput.style.display = "block";
     }
   } else {
+    console.log('no demand to be displayed');
     demandPanel2.style.display = "none";
     demandPanel1.style.display = "none";
     demandPanelDropdown.style.display = "none"
@@ -275,6 +275,7 @@ async function displayTrophies(results, websiteName, fullid,) {
         trophiesPanelInput.style.display = "block";
       }
   } else {
+    console.log('no trophy to be displayed');
     trophiesPanel2.style.display = "none";
     trophiesPanel1.style.display = "none";
     trophiesPanelDropdown.style.display = "none";
@@ -424,7 +425,7 @@ function displayEsg(results) {
         let answer =  (
           "This website belongs to <b>" + results.business_name +
           "</b>:<br>\u2022 ESG risk: <b>"+ results.yahoo_esg + "%</b> (" + results.yahoo_percentile +
-          ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "</b>." +
+          ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "%</b>." +
           "<br></br><b> The controversy on this data is very high</b>"
           );
           displayEsgLink(results.yahoo_uid)
@@ -435,7 +436,7 @@ function displayEsg(results) {
         let answer =  (
           "This website belongs to <b>" + results.business_name +
           "</b>:<br>\u2022 ESG risk: <b>"+ results.yahoo_esg + "%</b> (" + results.yahoo_percentile +
-          ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "</b>."
+          ").<br>\u2022 Environmental risk: <b>"+ results.yahoo_envrisk + "%</b>."
         );
         displayEsgLink(results.yahoo_uid)
         detailsButton.style.display = "block"
