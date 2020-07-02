@@ -402,6 +402,12 @@ function displayEsg(results) {
       ); 
       detailsButton.style.display = "none"
       return answer
+    } else if (results.non_profit == true) {
+      let answer =  (
+        "<b>" + results.brand_name +"</b> is a <b>non profit organization</b>.<br>ESG risk reports are ususally not available for non profit organizations."
+        ); 
+        detailsButton.style.display = "none"
+        return answer
     } else {  
       let answer =  (
       "We do not have official information about this website, yet."

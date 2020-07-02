@@ -49,6 +49,7 @@ var config = {
             finalBusiness.local = matchedBusiness.local;
             finalBusiness.business_name = matchedBusiness.business_name;
             finalBusiness.small_business = matchedBusiness.small_business;
+            finalBusiness.non_profit = matchedBusiness.non_profit;
             const esg = finalBusiness.yahoo_esg;
             if ((!esg) || (esg.length < 1)) {
               finalBusiness.hasEsg = false;
@@ -87,6 +88,7 @@ var config = {
           brand.private = doc.data().private;
           brand.new_brand = doc.data().small_business; 
           brand.local = doc.data().local; 
+          brand.non_profit = doc.data().non_profit; 
           brand.brand_name = doc.data().name
           console.log('brand extracted is: ' + JSON.stringify(brand));
           if((!businessRef) || businessRef.empty) {
@@ -106,6 +108,8 @@ var config = {
   console.log('brand is : ' + JSON.stringify(brand));
   return brand;
   }
+
+
 
   //firebase content
 async function registerNewBrand(websiteName, customDemand, fullid, collection) {

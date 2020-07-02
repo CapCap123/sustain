@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "parcel extension/manifest.json --no-hmr"
+    "dev": "parcel extension/manifest.json --no-hmr",
+    "dev2": "parcel extension/manifest.json"
   },
   "author": "",
   "license": "ISC",
