@@ -40,6 +40,26 @@
     margin: 3px;
   }
 
+  .btn-link {
+    font-size: 0.8rem;
+    border-style: none;
+    margin-left: 0rem;
+    padding-left: 0rem;
+    background-color: rgb(245, 245, 245);
+  }
+
+  .btn-issue {
+    font-size: 0.5rem;
+    border-style: none;
+    border-radius: 3px;
+    color:black;
+    float: right;
+    margin-left: auto;
+    padding: 5px;
+    margin: 3px;
+    text-align: center;
+  }
+
   .panel {
     background-color: rgb(245, 245, 245);
     color: #344;
