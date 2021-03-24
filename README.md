@@ -7,4 +7,4 @@
 **Issues:**
 - Had to delete VSCode because I don't have room on my computer anymore.
 - The ESG data available on Yahoo Finances is not as relevant as expected.
-- Need to have the ESG and business data available in an API to automate the database. (currently scrapping to fill in the database + manual associaltions of brands to a parent company)
+- Need to have the ESG and business data available in an API to automate the database. (currently scrapping to fill in the database for parent public companies with a different tool + manual associations of brands to a parent company)
